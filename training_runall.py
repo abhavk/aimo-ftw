@@ -88,6 +88,7 @@ To accomplish this, think carefully step-by-step and write a one-sentence approa
                 cumulative_text = cumulative_text + generation
                 try: 
                     code_output = process_code("```python\n"+generation)
+                    code_output = str(code_output)
                 except Exception as e:
                     code_output = str(e)
                 cumulative_text = cumulative_text + "\n```output\n" + code_output + "\n```"
