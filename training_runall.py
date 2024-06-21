@@ -26,8 +26,7 @@ def predict(problem, max_tokens=2048):
     for i in tqdm(range(n_repetitions)):
         start_text = """User: Below is a math problem you are to solve (non-negative numerical answer):
 \"{}\"
-To accomplish this, think carefully step-by-step and determine a brief sympy-based approach for solving the problem. Then write any python code necessary, surrounded by a ```python{{<code>}}``` block. Refine your approach and iterate until you are confident of an answer. Put your final numerical answer within \\boxed{{}}\\.
-While the intermediate outputs may be real numbers, the final answer will is always a numerical value."""
+To accomplish this, think carefully step-by-step and determine a brief sympy-based approach for solving the problem. Then write any python code necessary, surrounded by a ```python{{<code>}}``` block. Refine your approach and iterate until you are confident of an answer. Put your final numerical answer within \\boxed{{}}\\. Note: While the intermediate outputs may be real numbers, the final answer will is always a numerical value."""
 
         MAX_TOKENS = max_tokens
         cumulative_text = start_text.format(problem)
@@ -67,11 +66,12 @@ While the intermediate outputs may be real numbers, the final answer will is alw
                     break
                 NEXT_GEN = "code"
             else:
+                cumulative_text = cumulative_text + generation
                 try: 
-                    code_output = process_code("```\n"+generation)
+                    code_output = process_code("```python\n"+generation)
                 except Exception as e:
                     code_output = str(e)
-                cumulative_text = cumulative_text + "```output\n" + code_output + "\n```"
+                cumulative_text = cumulative_text + "\n```output\n" + code_output + "\n```"
                 NEXT_GEN = "approach"
 
             ALREADY_GENERATED = len(cumulative_text)

@@ -118,7 +118,7 @@ def generate_response(text, type, max_new_tokens, old_key_values=None, local=Fal
         return generate_response_api(text, type, max_new_tokens)
     
 APPROACH_STOP_WORDS = ["```output", "```python", "```\nOutput" , ")\n```" , "``````output", "``````python"] #,  
-CODE_STOP_WORDS = ["```output", ")\n```", "```\nOutput" , ")\n```" , "``````output"]
+CODE_STOP_WORDS = ["```output", "```", "```\nOutput" , "``````output"]
     
 def generate_response_local(text, type, max_new_tokens, old_key_values=None):
     stop_words = None
