@@ -38,7 +38,7 @@ def predict(problem, max_tokens=2048):
             torch.cuda.empty_cache()
             gc.collect()
             time.sleep(0.2)
-        print(f"Memeory allocated: {torch.cuda.memory_allocated()}")
+        print(f"Memory allocated: {torch.cuda.memory_allocated()}")
 
         start_text = """User: Below is a math problem you are to solve (non-negative numerical answer):
 \"{}\"
