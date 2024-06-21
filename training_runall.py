@@ -87,7 +87,7 @@ To accomplish this, think carefully step-by-step and write a one-sentence approa
             else:
                 cumulative_text = cumulative_text + generation
                 try: 
-                    code_output = process_code("```python\n"+generation)
+                    code_output = process_code("```python\n"+generation, return_shell_output=True)
                     code_output = str(code_output)
                 except Exception as e:
                     code_output = str(e)
