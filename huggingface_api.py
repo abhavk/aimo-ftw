@@ -137,7 +137,7 @@ def generate_response_local(text, type, max_new_tokens, old_key_values=None):
     top_p = 1.0
 
     model_inputs = tokenizer(text, return_tensors='pt')
-    # print("Tokenized text input:", model_inputs)
+    print("Tokenized text input:", model_inputs)
     model_inputs = model_inputs.to(model.device)
     # print(model_inputs)
     input_len = len(model_inputs['input_ids'][0])
