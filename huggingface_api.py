@@ -139,9 +139,9 @@ def generate_response_local(text, type, max_new_tokens, old_key_values=None):
     model_inputs = tokenizer(text, return_tensors='pt')
     print("Tokenized text input:", model_inputs)
     model_inputs = model_inputs.to(model.device)
-    # print(model_inputs)
+    print("Mapped model input", model_inputs)
     input_len = len(model_inputs['input_ids'][0])
-    # print("Input length:", input_len)
+    print("Input length:", input_len)
     with torch.no_grad():
         generation_output = model.generate(**model_inputs, 
             max_new_tokens=max_new_tokens,
@@ -151,8 +151,8 @@ def generate_response_local(text, type, max_new_tokens, old_key_values=None):
             top_p = top_p,
             num_return_sequences=1, stopping_criteria = stopping_criteria
         )
-    # print("Generation output:")
-    # print(generation_output)
+    print("Generation output:")
+    print(generation_output)
     output_ids = generation_output.sequences[0]
     old_key_values = generation_output.past_key_values
 

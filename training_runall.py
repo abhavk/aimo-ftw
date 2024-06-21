@@ -42,7 +42,7 @@ def predict(problem, max_tokens=2048):
 
         start_text = """User: Below is a math problem you are to solve (non-negative numerical answer):
 \"{}\"
-To accomplish this, think carefully step-by-step and determine a brief sympy-based approach for solving the problem. Then write any python code necessary, surrounded by a ```python{{code}}``` block. Refine your approach and iterate until you are confident of an answer. Put your final numerical answer within \\boxed{{}}\\. Note: While the intermediate outputs may be real numbers, the final answer will is always a numerical value."""
+To accomplish this, think carefully step-by-step and write a one-sentence approach for solving the problem. Then using a sympy-based approach implement it in python code, surrounded by a ```python{{code}}``` block. Refine your approach and iterate until you are confident of an answer. Put your final numerical answer within \\boxed{{}}\\. Note: While the intermediate outputs may be real numbers, the final answer will is always a numerical value."""
 
         MAX_TOKENS = max_tokens
         cumulative_text = start_text.format(problem)
