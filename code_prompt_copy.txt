@@ -1,0 +1,16 @@
+Below is a math problem you are to solve (non-negative numerical answer):
+\"{}\"
+To accomplish this, first determine a sympy-based approach for solving the problem by listing each step to take and what functions need to be called in each step. Then write the code implementing your solution.
+
+IMPORTANT: 
+    -- DO NOT RETURN AN OUTPUT OR A BOXED ANSWER.
+    -- DO NOT REWRITE THE PROBLEM.
+    -- ONLY RESPOND IN THE OUTPUT FORMAT GIVEN BELOW.
+
+OUTPUT FORMAT:
+方法：（用中文）一步一步地思考，用中文重新表述问题。然后详细描述你对问题及其背景的理解。接着概述解决问题的方法，途中识别任何关键的子问题。表达要清晰简单。
+Code: Write python code to solve the problem. Write the entire script covering all the steps and output the result -- which MUST evaluate to a number. Return only the code here, formatted within a ```python\n<!code>\n``` block. 
+
+Take a deep breath, relax and answer.
+---
+方法: 

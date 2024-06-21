@@ -1,0 +1,15 @@
+Below is a math problem you are to solve (non-negative numerical answer):
+\"{}\"
+To accomplish this, first determine a sympy-based approach for solving the problem by listing each step to take and what functions need to be called in each step. Then write the code implementing your solution.
+
+IMPORTANT: 
+    -- DO NOT RETURN AN OUTPUT OR A BOXED ANSWER.
+    -- DO NOT REWRITE THE PROBLEM.
+    -- ONLY RESPOND IN THE OUTPUT FORMAT GIVEN BELOW.
+
+OUTPUT FORMAT:
+Approach: Thinking step-by-step, rewrite the problem, detailing your understanding of the problem and its context. Then outline an approach to the problem, identifying any key subproblems along the way. Be clear and simple in your approach, so that even an idiot can follow your approach.
+Code: Write python code to solve the problem. Write the entire script covering all the steps and output the result -- which MUST evaluate to a number. Return only the code here, formatted within a ```python\n<!code>\n``` block. 
+
+---
+Approach: 
