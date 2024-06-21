@@ -12,7 +12,8 @@ headers = {
 	"Content-Type": "application/json" 
 }
 
-MODEL_PATH = "/kaggle/input/deepseek-math"
+# MODEL_PATH = "/kaggle/input/deepseek-math"
+MODEL_PATH = "deepseek-math-7b-rl"
 
 from transformers import (
     AutoModelForCausalLM, 

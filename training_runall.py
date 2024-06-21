@@ -102,7 +102,6 @@ if __name__ == '__main__':
     parser.add_argument('--input', type=int, required=True)
     args = parser.parse_args()
 
-
     # Path to your CSV file
     csv_file_path = "train.csv"
 
