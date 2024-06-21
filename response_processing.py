@@ -89,7 +89,6 @@ def process_text_output(output):
     result = output    
     try:
         result_output = re.findall(r'\\boxed\{(\d+)\}', result)
-
         print('BOXED', result_output)
         if not len(result_output):
             result_output = naive_parse(result)

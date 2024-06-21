@@ -37,9 +37,9 @@ Note that while the intermediate outputs may be real numbers, the final answer w
         
         while (ALREADY_GENERATED < MAX_TOKENS - 100):
             if NEXT_GEN == "approach":
-                cumulative_text += "\n\nApproach:"
+                cumulative_text = cumulative_text + "\n\nApproach:"
             elif NEXT_GEN == "code":
-                cumulative_text += "\n\n```python"
+                cumulative_text = cumulative_text + "\n\n```python"
 
             # TODO: This is loose since words and tokens aren't correlated directly
             remaining_words = MAX_TOKENS-len(cumulative_text)
@@ -59,20 +59,18 @@ Note that while the intermediate outputs may be real numbers, the final answer w
             print(f"Generated: {generation}")
 
             if NEXT_GEN == "approach":
+                cumulative_text = cumulative_text + generation
                 maybe_answer = process_text_output(generation)
                 if maybe_answer > 0:
                     print(f"Answer found: {maybe_answer}")
                     answer = maybe_answer
-                    
                     break 
-                cumulative_text += generation
-
             else:
+                cumulative_text = cumulative_text + "```output\n" + code_output + "\n```"
                 try: 
                     code_output = process_code("```\n"+generation)
                 except Exception as e:
                     code_output = str(e)
-                cumulative_text += "```output\n" + code_output + "\n```"
 
         if answer:
             answers.append(maybe_answer)
