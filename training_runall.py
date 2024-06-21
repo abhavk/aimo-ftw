@@ -121,6 +121,7 @@ def attempt_training_problem(csv_file, number):
                 print(f"Problem: {problem}")
                 print(f"True answer: {answer}")
                 if os.getenv("MAX_TOKENS"):
+                    print(f"Using MAX_TOKENS: {os.getenv('MAX_TOKENS')}")
                     return predict(problem, int(os.getenv("MAX_TOKENS")))
                 else: 
                     return predict(problem)
