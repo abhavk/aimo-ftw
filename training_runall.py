@@ -20,16 +20,16 @@ def sample_best_answer(answers):
     best_answer = max(answer_counts, key=answer_counts.get)
     return best_answer
 
-def predict(problem):
+def predict(problem, max_tokens=2048):
     n_repetitions = 15
     answers = []
     for i in tqdm(range(n_repetitions)):
-        start_text = """Below is a math problem you are to solve (non-negative numerical answer):
+        start_text = """User: Below is a math problem you are to solve (non-negative numerical answer):
 \"{}\"
-To accomplish this, first determine a sympy-based approach for solving the problem by listing each step to take and what functions need to be called in each step. Then write any code necessary in your solution. Iterate between thoughts and code until you arrive at a solution. Put your final numerical answer within \\boxed{{}}\\.
-Note that while the intermediate outputs may be real numbers, the final answer will always be a numerical value."""
+To accomplish this, think carefully step-by-step and determine a brief sympy-based approach for solving the problem. Then write any python code necessary, surrounded by a ```python{{<code>}}``` block. Refine your approach and iterate until you are confident of an answer. Put your final numerical answer within \\boxed{{}}\\.
+While the intermediate outputs may be real numbers, the final answer will is always a numerical value."""
 
-        MAX_TOKENS = 2048
+        MAX_TOKENS = max_tokens
         cumulative_text = start_text.format(problem)
         ALREADY_GENERATED = len(cumulative_text)
         # start with approach
@@ -37,7 +37,7 @@ Note that while the intermediate outputs may be real numbers, the final answer w
         
         while (ALREADY_GENERATED < MAX_TOKENS - 100):
             if NEXT_GEN == "approach":
-                cumulative_text = cumulative_text + "\n\nApproach:"
+                cumulative_text = cumulative_text + "\nApproach:"
             elif NEXT_GEN == "code":
                 cumulative_text = cumulative_text + "\n\n```python"
 
@@ -71,6 +71,8 @@ Note that while the intermediate outputs may be real numbers, the final answer w
                     code_output = process_code("```\n"+generation)
                 except Exception as e:
                     code_output = str(e)
+
+            ALREADY_GENERATED = len(cumulative_text)
 
         if answer:
             answers.append(maybe_answer)
