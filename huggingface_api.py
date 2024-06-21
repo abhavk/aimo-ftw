@@ -41,54 +41,49 @@ from transformers import (
 config = AutoConfig.from_pretrained(MODEL_PATH)
 tokenizer = AutoTokenizer.from_pretrained(MODEL_PATH)
 
-device_map = [('model.embed_tokens', 0),
-                 ('model.layers.0', 0),
-                 ('model.layers.1', 0),
-                 ('model.layers.2', 0),
-                 ('model.layers.3', 0),
-                 ('model.layers.4', 0),
-                 ('model.layers.5', 0),
-                 ('model.layers.6', 0),
-                 ('model.layers.7', 0),
-                 ('model.layers.8', 0),
-                 ('model.layers.9', 0),
-                 ('model.layers.10', 0),
-                 ('model.layers.11', 0),
-                 ('model.layers.12', 0),
-                 ('model.layers.13', 0),
-                 ('model.layers.14', 0),
-                 ('model.layers.15', 0),
-                 ('model.layers.16', 0),
-                 ('model.layers.17', 0),
-                 ('model.layers.18', 0),
-                 ('model.layers.19', 0),
-                 ('model.layers.20', 0),
-                 ('model.layers.21', 0),
-                 ('model.layers.22', 1),
-                 ('model.layers.23', 1),
-                 ('model.layers.24', 1),
-                 ('model.layers.25', 1),
-                 ('model.layers.26', 1),
-                 ('model.layers.27', 1),
-                 ('model.layers.28', 1),
-                 ('model.layers.29', 1),
-                 ('model.norm', 1),
-                 ('lm_head', 1)]
+def create_device_map(num_layers):
+    num_gpus = torch.cuda.device_count()
+    device_map = []
+    layers_per_gpu = num_layers // num_gpus
+    extra_layers = num_layers % num_gpus
+    
+    # Assign layers to GPUs
+    current_layer = 0
+    for gpu_id in range(num_gpus):
+        for _ in range(layers_per_gpu):
+            device_map.append((f'model.layers.{current_layer}', gpu_id))
+            current_layer += 1
+        # Distribute extra layers
+        if extra_layers > 0:
+            device_map.append((f'model.layers.{current_layer}', gpu_id))
+            current_layer += 1
+            extra_layers -= 1
+    
+    # Assign remaining parts of the model
+    device_map.append(('model.embed_tokens', 0))
+    device_map.append(('model.norm', num_gpus - 1))
+    device_map.append(('lm_head', num_gpus - 1))
+    device_map = {ii:jj for (ii,jj) in device_map}
+    return device_map
 
-device_map = {ii:jj for (ii,jj) in device_map}
+# Example usage:
+num_layers = 30  # Total layers in the model
+device_map = create_device_map(num_layers)
+
+# device_map = {ii:jj for (ii,jj) in device_map}
 
 
 print("Using device:", device)
 model = AutoModelForCausalLM.from_pretrained(
     MODEL_PATH,
-    #device_map=device_map,
+    device_map=device_map,
     torch_dtype="auto",
     trust_remote_code=True,
     #quantization_config=quantization_config,
     config=config
 )
 
-model.to(device)
+# model.to(device)
 
 pipeline = transformers.pipeline(
     "text-generation",
