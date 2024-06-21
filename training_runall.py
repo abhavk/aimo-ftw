@@ -53,8 +53,8 @@ To accomplish this, think carefully step-by-step and write a one-sentence approa
         while (ALREADY_GENERATED < MAX_TOKENS - 100):
             if NEXT_GEN == "approach":
                 cumulative_text = cumulative_text + "\nApproach:"
-            elif NEXT_GEN == "code":
-                cumulative_text = cumulative_text + "\n```python"
+            # elif NEXT_GEN == "code":
+            #     cumulative_text = cumulative_text + "\n```python"
 
             # TODO: This is loose since words and tokens aren't correlated directly
             remaining_words = MAX_TOKENS-len(cumulative_text)
@@ -107,7 +107,7 @@ To accomplish this, think carefully step-by-step and write a one-sentence approa
         print(f"Current answers: {answers}")
         print(f"\n\n\n")
     
-    return sample_best_answer(answers)
+    return sample_best_answer([int(a) for a in answers])
 
 def attempt_training_problem(csv_file, number):
     with open(csv_file, 'r') as file:
