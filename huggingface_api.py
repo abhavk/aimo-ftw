@@ -4,13 +4,14 @@ import transformers
 import torch
 import gc
 import os
-os.environ['CUDA_LAUNCH_BLOCKING'] = '1'
+# os.environ['CUDA_LAUNCH_BLOCKING'] = '1'
 
-torch.cuda.set_device(0)
-torch.backends.cuda.enable_mem_efficient_sdp(False)
+# torch.cuda.set_device(0)
+# torch.backends.cuda.enable_mem_efficient_sdp(False)
+# torch.cuda.empty_cache()
+
 torch.cuda.empty_cache()
 gc.collect()
-device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 API_URL = "https://li1t6zzkr7cn9h8f.us-east-1.aws.endpoints.huggingface.cloud"
 RL_API_URL = "https://tcou0ujy480brhb5.us-east-1.aws.endpoints.huggingface.cloud"
@@ -72,7 +73,6 @@ device_map = create_device_map(num_layers)
 
 # device_map = {ii:jj for (ii,jj) in device_map}
 
-print("Using device:", device)
 model = AutoModelForCausalLM.from_pretrained(
     MODEL_PATH,
     device_map=device_map,
@@ -81,6 +81,8 @@ model = AutoModelForCausalLM.from_pretrained(
     #quantization_config=quantization_config,
     config=config
 )
+
+model.eval()
 
 # model.to(device)
 
@@ -140,14 +142,15 @@ def generate_response_local(text, type, max_new_tokens, old_key_values=None):
     # print(model_inputs)
     input_len = len(model_inputs['input_ids'][0])
     # print("Input length:", input_len)
-    generation_output = model.generate(**model_inputs, 
-        max_new_tokens=max_new_tokens,
-        return_dict_in_generate=True,
-        do_sample = True,
-        temperature = temperature,
-        top_p = top_p,
-        num_return_sequences=1, stopping_criteria = stopping_criteria
-    )
+    with torch.no_grad():
+        generation_output = model.generate(**model_inputs, 
+            max_new_tokens=max_new_tokens,
+            return_dict_in_generate=True,
+            do_sample = True,
+            temperature = temperature,
+            top_p = top_p,
+            num_return_sequences=1, stopping_criteria = stopping_criteria
+        )
     # print("Generation output:")
     # print(generation_output)
     output_ids = generation_output.sequences[0]
