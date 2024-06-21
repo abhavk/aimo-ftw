@@ -42,7 +42,7 @@ def predict(problem, max_tokens=2048):
 
         start_text = """User: Below is a math problem you are to solve (non-negative numerical answer):
 \"{}\"
-To accomplish this, think carefully and write a short, one-sentence approach for attacking the problem. Then use a sympy-based approach and implement it in python code, surrounded by a ```python{{code}}``` block. Refine your approach and iterate until you are confident of an answer. Put your final numerical answer within \\boxed{{}}\\. Note: While the intermediate outputs may be real numbers, the final answer will is always a numerical value."""
+To accomplish this, think carefully and write a short, one-sentence approach for attacking the problem. Then use a sympy-based approach and implement it in python code, surrounded by a ```python{{code}}``` block. Refine your approach and iterate until you are confident of an answer. Put your final numerical answer within \\boxed{{}}\\. Note: While the intermediate outputs may be real numbers, the final answer is always a numerical value."""
 
         MAX_TOKENS = max_tokens
         cumulative_text = start_text.format(problem)
@@ -74,7 +74,7 @@ To accomplish this, think carefully and write a short, one-sentence approach for
                 print(f"Stopped: End of generation.")
 
             generation = decoded_output[len(cumulative_text):]
-            print(f"Generated: {generation}")
+            print(f"\033[93mGenerated: {generation}\033[0m")
 
             if NEXT_GEN == "approach":
                 cumulative_text = cumulative_text + generation
