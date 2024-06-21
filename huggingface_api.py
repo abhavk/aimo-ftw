@@ -144,7 +144,6 @@ def generate_response_local(text, type, max_new_tokens, old_key_values=None):
     generation_output = model.generate(**model_inputs, 
         max_new_tokens=max_new_tokens,
         return_dict_in_generate=True,
-        past_key_values = old_key_values,
         do_sample = True,
         temperature = temperature,
         top_p = top_p,
