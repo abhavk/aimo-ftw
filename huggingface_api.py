@@ -141,8 +141,9 @@ def generate_response_local(text, type, max_new_tokens, old_key_values=None):
         top_p = top_p,
         num_return_sequences=1, stopping_criteria = stopping_criteria
     )
+    print(generation_output)
     output_ids = generation_output.sequences[0]
-    old_key_values = generation_output.old_key_values
+    old_key_values = generation_output.past_key_values
 
     decoded_output = tokenizer.decode(output_ids, skip_special_tokens=True)
 
