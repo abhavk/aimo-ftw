@@ -42,7 +42,7 @@ def predict(problem, max_tokens=2048):
 
         start_text = """User: Below is a math problem you are to solve (non-negative numerical answer):
 \"{}\"
-To accomplish this, think carefully step-by-step and determine a brief sympy-based approach for solving the problem. Then write any python code necessary, surrounded by a ```python{{<code>}}``` block. Refine your approach and iterate until you are confident of an answer. Put your final numerical answer within \\boxed{{}}\\. Note: While the intermediate outputs may be real numbers, the final answer will is always a numerical value."""
+To accomplish this, think carefully step-by-step and determine a brief sympy-based approach for solving the problem. Then write any python code necessary, surrounded by a ```python{{code}}``` block. Refine your approach and iterate until you are confident of an answer. Put your final numerical answer within \\boxed{{}}\\. Note: While the intermediate outputs may be real numbers, the final answer will is always a numerical value."""
 
         MAX_TOKENS = max_tokens
         cumulative_text = start_text.format(problem)
@@ -61,7 +61,7 @@ To accomplish this, think carefully step-by-step and determine a brief sympy-bas
             stop_word_cond = None
             decoded_output = None
             
-            print("Generating response for input:\n", cumulative_text)
+            print("\033[92mGenerating response for input:\n" + cumulative_text + "\033[0m")
 
             try: 
                 decoded_output, stop_word_cond, old_key_values = generate_response(cumulative_text, NEXT_GEN, remaining_words, local=True)
