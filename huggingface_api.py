@@ -134,8 +134,13 @@ def generate_response_local(text, type, max_new_tokens, old_key_values=None):
     stopping_criteria = StoppingCriteriaList([StoppingCriteriaSub(stops=stop_words_ids)])
     temperature = 0.9
     top_p = 1.0
-    model_inputs = tokenizer(text, return_tensors='pt').to(model.device)
+
+    model_inputs = tokenizer(text, return_tensors='pt')
+    print("Tokenized text input:", model_inputs)
+    model_inputs = model_inputs.to(model.device)
+    print(model_inputs)
     input_len = len(model_inputs['input_ids'][0])
+    print("Input length:", input_len)
     generation_output = model.generate(**model_inputs, 
         max_new_tokens=max_new_tokens,
         return_dict_in_generate=True,
