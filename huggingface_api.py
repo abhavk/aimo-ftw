@@ -126,6 +126,10 @@ def generate_response_local(text, type, max_new_tokens, old_key_values=None):
     else:
         stop_words = CODE_STOP_WORDS
 
+    for stop_word in stop_words:
+        result = tokenizer(stop_word, return_tensors='pt', add_special_tokens=False)
+        print(stop_word, result)  # This will show if any stop word causes an issue
+
     stop_words_ids = [tokenizer(stop_word, return_tensors='pt', add_special_tokens=False)['input_ids'].squeeze() for stop_word in stop_words]
     stopping_criteria = StoppingCriteriaList([StoppingCriteriaSub(stops=stop_words_ids)])
     temperature = 0.9
