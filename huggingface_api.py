@@ -4,6 +4,7 @@ import transformers
 import torch
 import gc
 
+torch.cuda.set_device(0)
 torch.backends.cuda.enable_mem_efficient_sdp(False)
 torch.cuda.empty_cache()
 gc.collect()
