@@ -79,6 +79,11 @@ Note that while the intermediate outputs may be real numbers, the final answer w
         else:
             # use the last code output as a potential answer
             answers.append(code_output)
+
+        print(f"Answer: {answer}")
+        print(f"Final generation: {cumulative_text}")
+        print(f"Current answers: {answers}")
+        print(f"\n\n\n")
     
     return sample_best_answer(answers)
 
