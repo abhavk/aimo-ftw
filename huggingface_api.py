@@ -13,7 +13,8 @@ headers = {
 }
 
 # MODEL_PATH = "/kaggle/input/deepseek-math"
-MODEL_PATH = "deepseek-math-7b-rl"
+# MODEL_PATH = "deepseek-math-7b-rl"
+MODEL_PATH = "/opt/dlami/nvme/deepseek-math-7b-rl"
 
 from transformers import (
     AutoModelForCausalLM, 
