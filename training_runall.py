@@ -2,7 +2,7 @@
 from huggingface_api import generate_response
 from response_processing import process_text_output, process_code
 import csv
-import tqdm
+from tqdm import tqdm
 
 def sample_best_answer(answers):
     # get the most frequent answer that isn't negative
@@ -26,7 +26,7 @@ def predict(problem):
     for i in tqdm(range(n_repetitions)):
         start_text = """Below is a math problem you are to solve (non-negative numerical answer):
 \"{}\"
-To accomplish this, first determine a sympy-based approach for solving the problem by listing each step to take and what functions need to be called in each step. Then write any code necessary in your solution. Iterate between thoughts and code until you arrive at a solution. Put your final numerical answer within \\boxed{}\\.
+To accomplish this, first determine a sympy-based approach for solving the problem by listing each step to take and what functions need to be called in each step. Then write any code necessary in your solution. Iterate between thoughts and code until you arrive at a solution. Put your final numerical answer within \\boxed{{}}\\.
 Note that while the intermediate outputs may be real numbers, the final answer will always be a numerical value."""
 
         MAX_TOKENS = 2048
@@ -43,6 +43,8 @@ Note that while the intermediate outputs may be real numbers, the final answer w
 
             # TODO: This is loose since words and tokens aren't correlated directly
             remaining_words = MAX_TOKENS-len(cumulative_text)
+            stop_word_cond = None
+            decoded_output = None
             try: 
                 decoded_output, stop_word_cond, old_key_values = generate_response(cumulative_text, NEXT_GEN, remaining_words, local=True)
             except Exception as e:

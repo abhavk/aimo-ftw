@@ -3,12 +3,14 @@ from prompts import code_prompt
 import transformers
 import torch
 import gc
+import os
+os.environ['CUDA_LAUNCH_BLOCKING'] = '1'
 
 torch.cuda.set_device(0)
 torch.backends.cuda.enable_mem_efficient_sdp(False)
 torch.cuda.empty_cache()
 gc.collect()
-
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 API_URL = "https://li1t6zzkr7cn9h8f.us-east-1.aws.endpoints.huggingface.cloud"
 RL_API_URL = "https://tcou0ujy480brhb5.us-east-1.aws.endpoints.huggingface.cloud"
@@ -70,14 +72,18 @@ device_map = [('model.embed_tokens', 0),
 
 device_map = {ii:jj for (ii,jj) in device_map}
 
+
+print("Using device:", device)
 model = AutoModelForCausalLM.from_pretrained(
     MODEL_PATH,
-    device_map=device_map,
+    #device_map=device_map,
     torch_dtype="auto",
     trust_remote_code=True,
     #quantization_config=quantization_config,
     config=config
 )
+
+model.to(device)
 
 pipeline = transformers.pipeline(
     "text-generation",
@@ -91,7 +97,7 @@ pipeline = transformers.pipeline(
 class StoppingCriteriaSub(StoppingCriteria):
     def __init__(self, stops = [], encounters=1):
         super().__init__()
-        self.stops = [stop.to("cuda") for stop in stops]
+        self.stops = [stop.to("cuda:0") for stop in stops]
 
     def __call__(self, input_ids: torch.LongTensor, scores: torch.FloatTensor):
         for stop in self.stops:
