@@ -1,7 +1,6 @@
 # import from other files
 from huggingface_api import generate_response
-from math_comp import naive_parse
-from response_processing import process_text_output, process_code
+from response_processing import process_text_output, process_code, naive_parse
 import csv
 from tqdm import tqdm
 import os
