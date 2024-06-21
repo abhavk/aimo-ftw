@@ -1,11 +1,16 @@
 # import from other files
 from huggingface_api import generate_response
+from math_comp import naive_parse
 from response_processing import process_text_output, process_code
 import csv
 from tqdm import tqdm
 import os
 from dotenv import load_dotenv
 load_dotenv()
+
+import torch
+import gc
+import time
 
 def sample_best_answer(answers):
     # get the most frequent answer that isn't negative
@@ -26,7 +31,16 @@ def sample_best_answer(answers):
 def predict(problem, max_tokens=2048):
     n_repetitions = 15
     answers = []
+
     for i in tqdm(range(n_repetitions)):
+
+        print(f"Repetition {i+1}")
+        for _ in range(5):
+            torch.cuda.empty_cache()
+            gc.collect()
+            time.sleep(0.2)
+        print(f"Memeory allocated: {torch.cuda.memory_allocated()}")
+
         start_text = """User: Below is a math problem you are to solve (non-negative numerical answer):
 \"{}\"
 To accomplish this, think carefully step-by-step and determine a brief sympy-based approach for solving the problem. Then write any python code necessary, surrounded by a ```python{{<code>}}``` block. Refine your approach and iterate until you are confident of an answer. Put your final numerical answer within \\boxed{{}}\\. Note: While the intermediate outputs may be real numbers, the final answer will is always a numerical value."""
@@ -36,7 +50,7 @@ To accomplish this, think carefully step-by-step and determine a brief sympy-bas
         ALREADY_GENERATED = len(cumulative_text)
         # start with approach
         NEXT_GEN = "approach"
-        
+        answer = None
         while (ALREADY_GENERATED < MAX_TOKENS - 100):
             if NEXT_GEN == "approach":
                 cumulative_text = cumulative_text + "\nApproach:"
@@ -83,7 +97,7 @@ To accomplish this, think carefully step-by-step and determine a brief sympy-bas
             answers.append(maybe_answer)
         else:
             # use the last code output as a potential answer
-            answers.append(code_output)
+            answers.append(naive_parse(cumulative_text))
 
         print(f"Answer: {answer}")
         print(f"Final generation: {cumulative_text}")
