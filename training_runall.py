@@ -67,11 +67,11 @@ While the intermediate outputs may be real numbers, the final answer will is alw
                     break
                 NEXT_GEN = "code"
             else:
-                cumulative_text = cumulative_text + "```output\n" + code_output + "\n```"
                 try: 
                     code_output = process_code("```\n"+generation)
                 except Exception as e:
                     code_output = str(e)
+                cumulative_text = cumulative_text + "```output\n" + code_output + "\n```"
                 NEXT_GEN = "approach"
 
             ALREADY_GENERATED = len(cumulative_text)
