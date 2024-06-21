@@ -3,6 +3,9 @@ from huggingface_api import generate_response
 from response_processing import process_text_output, process_code
 import csv
 from tqdm import tqdm
+import os
+from dotenv import load_dotenv
+load_dotenv()
 
 def sample_best_answer(answers):
     # get the most frequent answer that isn't negative
@@ -100,7 +103,10 @@ def attempt_training_problem(csv_file, number):
                 answer = row['answer']
                 print(f"Problem: {problem}")
                 print(f"True answer: {answer}")
-                return predict(problem)
+                if os.getenv("MAX_TOKENS"):
+                    return predict(problem, int(os.getenv("MAX_TOKENS")))
+                else: 
+                    return predict(problem)
 
 
 if __name__ == '__main__':
