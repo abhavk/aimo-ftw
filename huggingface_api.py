@@ -20,9 +20,14 @@ headers = {
 	"Content-Type": "application/json" 
 }
 
+# load MODEL_PATH from .env file
+from dotenv import load_dotenv
+load_dotenv()
+MODEL_PATH = os.getenv("MODEL_PATH")
+
 # MODEL_PATH = "/kaggle/input/deepseek-math"
 # MODEL_PATH = "deepseek-math-7b-rl"
-MODEL_PATH = "/opt/dlami/nvme/deepseek-math-7b-rl"
+# MODEL_PATH = "/opt/dlami/nvme/deepseek-math-7b-rl"
 
 from transformers import (
     AutoModelForCausalLM, 
