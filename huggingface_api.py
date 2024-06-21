@@ -72,7 +72,6 @@ device_map = create_device_map(num_layers)
 
 # device_map = {ii:jj for (ii,jj) in device_map}
 
-
 print("Using device:", device)
 model = AutoModelForCausalLM.from_pretrained(
     MODEL_PATH,

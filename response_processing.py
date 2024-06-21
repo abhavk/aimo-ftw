@@ -90,19 +90,21 @@ def process_text_output(output):
     try:
         result_output = re.findall(r'\\boxed\{(\d+)\}', result)
         print('BOXED', result_output)
-        if not len(result_output):
-            result_output = naive_parse(result)
-        else:
-            result_output = result_output[-1]
-
-        print('BOXED FINAL', result_output)
-        if not len(result_output):
-            result_output = -1
-        else:
-            result_output = round(float(eval(result_output))) % 1000
+        # if not len(result_output):
+        #     result_output = naive_parse(result)
+        # else:
+        #     result_output = result_output[-1]
+        # print('BOXED FINAL', result_output)
+        # if not len(result_output):
+        #     result_output = -1
+        # else:
+        #     result_output = round(float(eval(result_output))) % 1000
     except Exception as e:
         print(e)
         print('ERROR PARSING TEXT')
         result_output = -1
-    
+    if not len(result_output):
+        result_output = -1
+    else:
+        result_output = round(float(eval(result_output[-1]))) % 1000
     return result_output
