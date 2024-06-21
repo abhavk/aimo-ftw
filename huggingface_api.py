@@ -4,6 +4,11 @@ import transformers
 import torch
 import gc
 
+torch.backends.cuda.enable_mem_efficient_sdp(False)
+torch.cuda.empty_cache()
+gc.collect()
+
+
 API_URL = "https://li1t6zzkr7cn9h8f.us-east-1.aws.endpoints.huggingface.cloud"
 RL_API_URL = "https://tcou0ujy480brhb5.us-east-1.aws.endpoints.huggingface.cloud"
 headers = {
