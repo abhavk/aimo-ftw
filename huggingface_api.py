@@ -121,7 +121,6 @@ APPROACH_STOP_WORDS = ["```output", "```python", "```\nOutput" , ")\n```" , "```
 CODE_STOP_WORDS = ["```output", "```", "```\nOutput" , "``````output"]
     
 def generate_response_local(text, type, max_new_tokens, old_key_values=None):
-    print("Generating response for input: ", text)
     stop_words = None
     if type == "approach":
         stop_words = APPROACH_STOP_WORDS

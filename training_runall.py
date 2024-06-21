@@ -60,6 +60,9 @@ To accomplish this, think carefully step-by-step and determine a brief sympy-bas
             remaining_words = MAX_TOKENS-len(cumulative_text)
             stop_word_cond = None
             decoded_output = None
+            
+            print("Generating response for input:\n", cumulative_text)
+
             try: 
                 decoded_output, stop_word_cond, old_key_values = generate_response(cumulative_text, NEXT_GEN, remaining_words, local=True)
             except Exception as e:
