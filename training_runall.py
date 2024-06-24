@@ -214,20 +214,22 @@ class Tree:
         return node
     
     def expand_node(self, node):
-        expansions = generate_responses(
-                        node.state, 
-                        step_size=self.step_size, 
-                        max_tokens=self.max_tokens, 
-                        num_expansions=self.branching_factor,
-                        test=True
-                    )
-        for expansion, answer in expansions:
-            new_node = TreeNode(node.state + expansion, id=self.next_id, parent=node, terminal=answer is not None)
-            self.next_id += 1
-            if answer:
-                self.answers.append((new_node, answer))
-            node.children.append(new_node)
-        return node.children
+        if not node.children:
+            expansions = generate_responses(
+                            node.state, 
+                            step_size=self.step_size, 
+                            max_tokens=self.max_tokens, 
+                            num_expansions=self.branching_factor,
+                            test=True
+                        )
+            for expansion, answer in expansions:
+                new_node = TreeNode(node.state + expansion, id=self.next_id, parent=node, terminal=answer is not None)
+                self.next_id += 1
+                if answer:
+                    self.answers.append((new_node, answer))
+                node.children.append(new_node)
+            return node.children
+        return []
 
     def expand(self):
         expansion_node = self.select()
