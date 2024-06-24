@@ -288,9 +288,11 @@ if __name__ == '__main__':
     answers = []
 
     for i in range(1):
-        answer = attempt_training_problem(csv_file_path, args.input, args.mcts)
+        answer, final_tree = attempt_training_problem(csv_file_path, args.input, args.mcts)
         print(f"Predicted Answer: {answer}")
 
+    print(f"\n\n")
+    final_tree.print_tree(final_tree.root)
     count = 1
     for answer in answers:
         print(f"Answer {count}: {answer}")
