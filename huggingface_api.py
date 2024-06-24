@@ -111,28 +111,27 @@ def query(payload):
 	response = requests.post(RL_API_URL, headers=headers, json=payload)
 	return response.json()
 
-def generate_response(text, type, max_new_tokens, old_key_values=None, local=False):
+def generate_response(text, in_code_block, max_new_tokens, old_key_values=None, local=False):
     if local:
-        return generate_response_local(text, type, max_new_tokens, old_key_values)
+        return generate_response_local(text, in_code_block, max_new_tokens, old_key_values)
     else:
-        return generate_response_api(text, type, max_new_tokens)
+        return generate_response_api(text, in_code_block, max_new_tokens)
     
 APPROACH_STOP_WORDS = ["```output", "```python", "```\nOutput" , ")\n```" , "``````output", "``````python"] #,  
 CODE_STOP_WORDS = ["```output", "\n```", "```\nOutput" , "``````output"]
     
-def generate_response_local(text, type, max_new_tokens, old_key_values=None):
+def generate_response_local(text, in_code_block, max_new_tokens, old_key_values=None):
     stop_words = None
-    if type == "approach":
-        stop_words = APPROACH_STOP_WORDS
-    else:
+    stopping_criteria = None
+    if in_code_block:
         stop_words = CODE_STOP_WORDS
+        stop_words_ids = [tokenizer(stop_word, return_tensors='pt', add_special_tokens=False)['input_ids'].squeeze() for stop_word in stop_words]
+        stopping_criteria = StoppingCriteriaList([StoppingCriteriaSub(stops=stop_words_ids)])
 
-    for stop_word in stop_words:
-        result = tokenizer(stop_word, return_tensors='pt', add_special_tokens=False)
+    # for stop_word in stop_words:
+    #     result = tokenizer(stop_word, return_tensors='pt', add_special_tokens=False)
         # print(stop_word, result)  # This will show if any stop word causes an issue
 
-    stop_words_ids = [tokenizer(stop_word, return_tensors='pt', add_special_tokens=False)['input_ids'].squeeze() for stop_word in stop_words]
-    stopping_criteria = StoppingCriteriaList([StoppingCriteriaSub(stops=stop_words_ids)])
     temperature = 0.9
     top_p = 1.0
 
@@ -143,14 +142,24 @@ def generate_response_local(text, type, max_new_tokens, old_key_values=None):
     input_len = len(model_inputs['input_ids'][0])
     # print("Input length:", input_len)
     with torch.no_grad():
-        generation_output = model.generate(**model_inputs, 
-            max_new_tokens=max_new_tokens,
-            return_dict_in_generate=True,
-            do_sample = True,
-            temperature = temperature,
-            top_p = top_p,
-            num_return_sequences=1, stopping_criteria = stopping_criteria
-        )
+        if stopping_criteria:
+            generation_output = model.generate(**model_inputs, 
+                max_new_tokens=max_new_tokens,
+                return_dict_in_generate=True,
+                do_sample = True,
+                temperature = temperature,
+                top_p = top_p,
+                num_return_sequences=1, stopping_criteria = stopping_criteria
+            )
+        else:
+            generation_output = model.generate(**model_inputs, 
+                max_new_tokens=max_new_tokens,
+                return_dict_in_generate=True,
+                do_sample = True,
+                temperature = temperature,
+                top_p = top_p,
+                num_return_sequences=1
+            )
     # print("Generation output:")
     # print(generation_output)
     output_ids = generation_output.sequences[0]
