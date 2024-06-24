@@ -172,6 +172,15 @@ class TreeNode:
         self.value = 1/len(state)
         self.terminal = terminal
 
+    def __str__(self):
+        return self.state
+    
+    def recursive_print(self, level=0):
+        indent = " " * (level * 4)
+        print(f"{indent}- State: {self.state}, Visits: {self.visits}, Value: {self.value:.2f}, Terminal: {self.terminal}")
+        for child in self.children:
+            child.recursive_print(level + 1)
+
 class Tree:
     # a tree structure to store the state of the game
     def __init__(self, text, branching_factor, step_size, max_tokens):
@@ -190,11 +199,12 @@ class Tree:
             stack.extend(node.children)
         return all_nodes
     
-    def print_tree(self, node, level=0):
-        indent = " " * (level * 4)
-        print(f"{indent}- State: {node.state}, Visits: {node.visits}, Value: {node.value:.2f}, Terminal: {node.terminal}")
-        for child in node.children:
-            self.print_tree(child, level + 1)
+    def print_tree(self, level=0):
+        # indent = " " * (level * 4)
+        # print(f"{indent}- State: {node.state}, Visits: {node.visits}, Value: {node.value:.2f}, Terminal: {node.terminal}")
+        # for child in node.children:
+        #     self.print_tree(child, level + 1)
+        self.root.recursive_print()
 
     def select(self):
         node = max([n for n in self.unroll() if not n.terminal], key=lambda x: x.value)
@@ -292,7 +302,7 @@ if __name__ == '__main__':
         print(f"Predicted Answer: {answer}")
 
     print(f"\n\n")
-    final_tree.print_tree(final_tree.root)
+    final_tree.print_tree()
     count = 1
     for answer in answers:
         print(f"Answer {count}: {answer}")
