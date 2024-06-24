@@ -163,7 +163,8 @@ def generate_responses(text, step_size=100, max_tokens=2048, num_expansions=3, t
     
 
 class TreeNode:
-    def __init__(self, state, parent=None, terminal=False):
+    def __init__(self, state, id=0, parent=None, terminal=False):
+        self.id = id
         self.state = state
         self.parent = parent
         self.children = []
@@ -177,7 +178,7 @@ class TreeNode:
     
     def recursive_print(self, level=0):
         indent = " " * (level * 4)
-        print(f"{indent}- State: {self.state}")
+        print(f"{indent}- State: {self.state} (Id: {self.id})")
         for child in self.children:
             child.recursive_print(level + 1)
 
@@ -188,6 +189,7 @@ class Tree:
         self.branching_factor = branching_factor
         self.step_size = step_size
         self.max_tokens = max_tokens
+        self.next_id = 1
         self.answers = []
 
     def unroll(self):
@@ -220,7 +222,8 @@ class Tree:
                         test=True
                     )
         for expansion, answer in expansions:
-            new_node = TreeNode(expansion, parent=node, terminal=answer is not None)
+            new_node = TreeNode(expansion, id=self.next_id, parent=node, terminal=answer is not None)
+            self.next_id += 1
             if answer:
                 self.answers.append((new_node, answer))
             node.children.append(new_node)
