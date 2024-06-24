@@ -197,7 +197,8 @@ class Tree:
             self.print_tree(child, level + 1)
 
     def select(self):
-        node = max([n for n in self.unroll() if not n.terminal], key=lambda x: x.value/x.visits + 2*(2*torch.log(torch.tensor(x.parent.visits))/x.visits)**0.5)
+        node = max([n for n in self.unroll() if not n.terminal], key=lambda x: x.value)
+                   #/x.visits + 2*(2*torch.log(torch.tensor(x.parent.visits))/x.visits)**0.5)
         return node
     
     def expand_node(self, node):
