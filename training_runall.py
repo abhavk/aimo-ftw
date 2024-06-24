@@ -178,7 +178,7 @@ class TreeNode:
     
     def recursive_print(self, level=0):
         indent = " " * (level * 4)
-        print(f"{indent}- State: {self.state} (Id: {self.id}, Parent: {self.parent.id if self.parent else None})")
+        print(f"{indent}- State: {self.state[:2]+ "..." + self.state[-2:]} (Id: {self.id}, Parent: {self.parent.id if self.parent else None})")
         for child in self.children:
             child.recursive_print(level + 1)
 
@@ -222,7 +222,7 @@ class Tree:
                         test=True
                     )
         for expansion, answer in expansions:
-            new_node = TreeNode(expansion, id=self.next_id, parent=node, terminal=answer is not None)
+            new_node = TreeNode(node.state + expansion, id=self.next_id, parent=node, terminal=answer is not None)
             self.next_id += 1
             if answer:
                 self.answers.append((new_node, answer))
