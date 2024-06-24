@@ -247,6 +247,8 @@ To accomplish this, think carefully and write a short, one-sentence approach for
     
 
 def attempt_training_problem(csv_file, number, mcts=False):
+    if mcts:
+        print("Running MCTS")
     with open(csv_file, 'r') as file:
         # Create a reader object
         csv_reader = csv.DictReader(file)
@@ -285,7 +287,7 @@ if __name__ == '__main__':
     # List to hold each problem and answer
     answers = []
 
-    for i in range(15):
+    for i in range(1):
         answer = attempt_training_problem(csv_file_path, args.input, args.mcts)
         print(f"Predicted Answer: {answer}")
 
