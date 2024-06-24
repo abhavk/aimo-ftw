@@ -243,7 +243,7 @@ To accomplish this, think carefully and write a short, one-sentence approach for
     start_text = start_text.format(problem)
     tree = Tree(start_text, branching_factor, step_size, MAX_TOKENS)
     answer = tree.mcts()
-    return answer    
+    return answer, tree    
     
 
 def attempt_training_problem(csv_file, number, mcts=False):
