@@ -138,13 +138,13 @@ def generate_responses(text, step_size=100, max_tokens=2048, num_expansions=3, t
 
     responses = []
 
+    print(f"\033[92mGenerating {num_expansions} NORMAL responses for input:\n\n{text}\033[0m")
     for i in range(num_expansions):
         # TODO: Make it more efficient by storing old_key_values
         if test:
-            print("\033[93mGenerating TEST response for input:\n" + text + "\033[0m")
+            print("\033[91mGenerating TEST response actually.\033[0m")
             new_response, old_key_vals = f"Test response {i+1}.", None
         else:
-            print("\033[92mGenerating TEST response for input:\n" + text + "\033[0m")
             new_response, old_key_vals = generate_response(tokenized_text, INSIDE_CODE_BLOCK, step_size, local=True)
         maybe_answer = process_text_output(new_response)
         answer = None
@@ -158,8 +158,8 @@ def generate_responses(text, step_size=100, max_tokens=2048, num_expansions=3, t
         #     print(f"Stopped: Stop word encountered.")
         # else:
         #     print(f"Stopped: End of generation.")
-        
-        responses.append((new_response, answer))
+        gen_response = new_response[len(text):]
+        responses.append((gen_response, answer))
     return responses
     
 
