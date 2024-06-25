@@ -256,7 +256,7 @@ def generate_response_api(problem, type, max_new_tokens=1042):
             "max_new_tokens": max_new_tokens,
             "use_cache": False,
             "return_full_text": False,
-            "temperature": 0.69
+            "temperature": 0.9
         }
     })
     return output

@@ -185,11 +185,18 @@ class TreeNode:
         for child in self.children:
             child.recursive_print(level + 1)
 
+    def recursive_visit(self):
+        self.visits += 1
+        if self.parent:
+            self.parent.recursive_visit()
+
 class Tree:
     # a tree structure to store the state of the game
     def __init__(self, text, branching_factor, step_size, max_tokens):
         self.root = TreeNode(text)
-        self.branching_factor = branching_factor
+        self.branching_factor = branching_factor # this defines how much is explored at each step
+        self.max_branching = branching_factor * 2 # this defines how wide each branch can possibly be
+        self.c_puct = 1.0
         self.step_size = step_size
         self.max_tokens = max_tokens
         self.next_id = 1
@@ -212,7 +219,8 @@ class Tree:
         self.root.recursive_print()
 
     def select(self):
-        node = max([n for n in self.unroll() if not n.terminal], key=lambda x: x.value)
+        node = max([n for n in self.unroll() if not n.terminal and len(n.children) < self.max_branching], key=lambda x: x.value + self.c_puct * torch.sqrt(torch.tensor(2 * torch.log(torch.tensor(x.parent.visits if x.parent else 0))/(1+x.visits))))
+        # node = max([n for n in self.unroll() if not n.terminal], key=lambda x: x.value)
                    #/x.visits + 2*(2*torch.log(torch.tensor(x.parent.visits))/x.visits)**0.5)
         return node
     
@@ -221,43 +229,59 @@ class Tree:
             test = True
         else:
             test = False
-        if not node.children:
-            expansions = generate_responses(
-                            node.state, 
-                            step_size=self.step_size, 
-                            max_tokens=self.max_tokens, 
-                            num_expansions=self.branching_factor,
-                            test=test
-                        )
-            for expansion, answer in expansions:
-                new_node = TreeNode(node.state + expansion, id=self.next_id, parent=node, terminal=answer is not None)
-                self.next_id += 1
-                if answer:
-                    self.answers.append((new_node, answer))
-                node.children.append(new_node)
-            return node.children
-        return []
+        expansions = generate_responses(
+                        node.state, 
+                        step_size=self.step_size, 
+                        max_tokens=self.max_tokens, 
+                        num_expansions=self.branching_factor,
+                        test=test
+                    )
+        for expansion, answer in expansions:
+            new_node = TreeNode(node.state + expansion, id=self.next_id, parent=node, terminal=answer is not None)
+            self.next_id += 1
+            if answer:
+                self.answers.append((new_node, answer))
+            node.children.append(new_node)
+        return node.children
 
     def expand(self):
-        expansion_node = self.select()
+        expansion_node = None
+        try: 
+            expansion_node = self.select()
+        except Exception as e:
+            print(f"\033[91mError: {e}\033[0m")
+            return []
+        
+        if expansion_node:
+            expansion_node.recursive_visit()
         # generate branching_factor children
         return self.expand_node(expansion_node)
 
-    def backpropagate(self):
+    def backup(self):
         pass
 
-    def mcts(self):
+    def collect_results(self, true_answer):
+        updates = []
+        terminal_nodes = [n for n in self.unroll() if n.terminal]
+        for node in terminal_nodes:
+            # get the true value of the node
+            predicted_answer = [a[1] for a in self.answers if a[0] == node][0]
+            true_value = 1 if predicted_answer == true_answer else -1
+            estimated_value = node.value
+            updates.append((node, true_value, estimated_value))
+        return updates
+
+    def mcts(self, n_iter=10):
         answer = None
-        for _ in range(10):
+        for _ in range(n_iter):
             children = self.expand()
             for child in children:
                 print(f"\033[93mCreated child: {child.state}\033[0m")
-            if self.answers:
-                answer = sample_best_answer([a[1] for a in self.answers])
-                if answer:
-                    break
+        if self.answers:
+            answer = sample_best_answer([a[1] for a in self.answers])
+        return answer
 
-def predict_mcts(problem, branching_factor=3, step_size=100, max_tokens=2048):
+def predict_mcts(problem, branching_factor=3, step_size=75, max_tokens=2048):
     MAX_TOKENS = max_tokens
     start_text = """User: Below is a math problem you are to solve (non-negative numerical answer):
 \"{}\"
@@ -284,14 +308,16 @@ def attempt_training_problem(csv_file, number, mcts=False):
                 if os.getenv("MAX_TOKENS"):
                     print(f"Using MAX_TOKENS: {os.getenv('MAX_TOKENS')}")
                     if mcts:
-                        return predict_mcts(problem, int(os.getenv("MAX_TOKENS")))
+                        predicted_answer, tree = predict_mcts(problem, int(os.getenv("MAX_TOKENS")))
                     else:
-                        return predict(problem, int(os.getenv("MAX_TOKENS")))
+                        predicted_answer, tree = predict(problem, int(os.getenv("MAX_TOKENS")))
                 else: 
                     if mcts:
-                        return predict_mcts(problem)
+                        predicted_answer, tree = predict_mcts(problem)
                     else:
-                        return predict(problem)
+                        predicted_answer, tree = predict(problem)
+                
+                return predicted_answer, tree, answer
 
 if __name__ == '__main__':
     # read arguments and parse them
@@ -309,7 +335,7 @@ if __name__ == '__main__':
     answers = []
 
     for i in range(1):
-        answer, final_tree = attempt_training_problem(csv_file_path, args.input, args.mcts)
+        answer, final_tree, true_answer = attempt_training_problem(csv_file_path, args.input, args.mcts)
         print(f"Predicted Answer: {answer}")
 
     print(f"\n\n")
@@ -319,7 +345,11 @@ if __name__ == '__main__':
         print(f"Answer {count}: {answer}")
         count += 1
 
-    # sample value of root node
-    tokenized_text = tokenizer(final_tree.root.state, return_tensors='pt')
-    print(f"Tokenized text input: {tokenized_text}")
-    print(f"Value of input problem: {get_value(tokenized_text['input_ids'])}")
+    results = final_tree.collect_results(true_answer)
+    from pprint import pprint
+    pprint(f"Results: {results}")
+
+    # # sample value of root node
+    # tokenized_text = tokenizer(final_tree.root.state, return_tensors='pt')
+    # print(f"Tokenized text input: {tokenized_text}")
+    # print(f"Value of input problem: {get_value(tokenized_text['input_ids'])}")
