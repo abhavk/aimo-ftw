@@ -196,10 +196,10 @@ class TreeNode:
 
 class Tree:
     # a tree structure to store the state of the game
-    def __init__(self, text, branching_factor, step_size, max_tokens):
+    def __init__(self, text, branching_factor, step_size, max_tokens, max_branching):
         self.root = TreeNode(text)
         self.branching_factor = branching_factor # this defines how much is explored at each step
-        self.max_branching = branching_factor * 2 # this defines how wide each branch can possibly be
+        self.max_branching = max_branching # this defines how wide each branch can possibly be
         self.c_puct = 1.0
         self.step_size = step_size
         self.max_tokens = max_tokens
@@ -285,16 +285,15 @@ class Tree:
             answer = sample_best_answer([a[1] for a in self.answers])
         return answer
 
-def predict_mcts(problem, branching_factor=3, step_size=100, max_tokens=2048):
-    MAX_TOKENS = max_tokens
+def predict_mcts(problem, branching_factor, max_branching, step_size, max_tokens, n_iter):
     start_text = prompt_2
     start_text = start_text.format(problem)
-    tree = Tree(start_text, branching_factor, step_size, MAX_TOKENS)
-    answer = tree.mcts(n_iter=30)
+    tree = Tree(start_text, branching_factor, step_size, max_tokens, max_branching)
+    answer = tree.mcts(n_iter=n_iter)
     return answer, tree    
     
 
-def attempt_training_problem(csv_file, number, mcts=False):
+def attempt_training_problem(csv_file, number, mcts, branching_factor, max_branching, n_iter, step_size, max_tokens):
     if mcts:
         print("Running MCTS")
     with open(csv_file, 'r') as file:
@@ -315,7 +314,7 @@ def attempt_training_problem(csv_file, number, mcts=False):
                         predicted_answer, tree = predict(problem, int(os.getenv("MAX_TOKENS")))
                 else: 
                     if mcts:
-                        predicted_answer, tree = predict_mcts(problem)
+                        predicted_answer, tree = predict_mcts(problem, branching_factor, max_branching, step_size, max_tokens, n_iter)
                     else:
                         predicted_answer, tree = predict(problem)
                 
@@ -327,7 +326,12 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     # read the input number
     parser.add_argument('--input', type=int, required=True)
+    parser.add_argument('--branching_factor', type=int, default=3)
+    parser.add_argument('--max_branching', type=int, default=6)
     parser.add_argument('--mcts', action='store_true')
+    parser.add_argument('--n_iter', type=int, default=30)
+    parser.add_argument('--step_size', type=int, default=100)
+    parser.add_argument('--max_tokens', type=int, default=2048)
     args = parser.parse_args()
 
     # Path to your CSV file
@@ -337,7 +341,15 @@ if __name__ == '__main__':
     answers = []
 
     for i in range(1):
-        answer, final_tree, true_answer = attempt_training_problem(csv_file_path, args.input, args.mcts)
+        answer, final_tree, true_answer = attempt_training_problem(csv_file_path, 
+                                                                   args.input,
+                                                                   args.mcts, 
+                                                                   args.branching_factor, 
+                                                                   args.max_branching, 
+                                                                   args.n_iter,
+                                                                   args.step_size,
+                                                                   args.max_tokens
+                                                                   ) 
         print(f"Predicted Answer: {answer}")
 
     print(f"\n\n")
