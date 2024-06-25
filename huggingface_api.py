@@ -116,6 +116,8 @@ class ValueModel(nn.Module):
         outputs = self.base_model(input_ids=input_ids, output_hidden_states=True)
         print(f"Last hidden values: {outputs.hidden_states[-1]}")
         print(f"First hidden values: {outputs.hidden_states[0]}")
+        print(f"Number of hidden states: {len(outputs.hidden_states)}")
+        print(f"Hidden states distribution across GPUs: {[hidden_state.device for hidden_state in outputs.hidden_states]}")
 
         # Extract hidden states of all tokens from the final layer
         hidden_states = outputs.hidden_states[-1].to("cuda:3")
