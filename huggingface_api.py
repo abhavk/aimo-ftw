@@ -165,11 +165,9 @@ class ValueModel(nn.Module):
         model.eval()  # Set the model to evaluation mode
         return model
     
+VALUE_MODEL_PATH = "value_model.pth"
 # get the value model
-value_model = ValueModel(
-    base_model=model,
-    num_attention_heads=4
-)
+value_model = ValueModel.load_model(model, VALUE_MODEL_PATH)
 
 # value_model = nn.DataParallel(value_model, device_ids=[0, 1])
 
