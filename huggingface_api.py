@@ -235,11 +235,11 @@ def generate_response_local(model_inputs, in_code_block, max_new_tokens, old_key
 
     decoded_output = tokenizer.decode(output_ids, skip_special_tokens=True)
 
-    stop_word_cond = False
-    for stop_word in stop_words:
-        stop_word_cond = stop_word_cond or (decoded_output[-len(stop_word):]==stop_word)
+    # stop_word_cond = False
+    # for stop_word in stop_words:
+    #     stop_word_cond = stop_word_cond or (decoded_output[-len(stop_word):]==stop_word)
 
-    return decoded_output, stop_word_cond, old_key_values
+    return decoded_output, old_key_values
 
 def generate_response_api(problem, type, max_new_tokens=1042):
     if type == "approach":
