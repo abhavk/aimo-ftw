@@ -119,13 +119,13 @@ class ValueModel(nn.Module):
         print(f"Model dtype: {model.dtype}")
         input_ids = input_ids.to("cuda:0")
         outputs = self.base_model(input_ids=input_ids, output_hidden_states=True)
-        print(f"Last hidden values: {outputs.hidden_states[-1]}")
-        print(f"First hidden values: {outputs.hidden_states[0]}")
-        print(f"Number of hidden states: {len(outputs.hidden_states)}")
-        print(f"Hidden states distribution across GPUs: {[hidden_state.device for hidden_state in outputs.hidden_states]}")
+        # print(f"Last hidden values: {outputs.hidden_states[-1]}")
+        # print(f"First hidden values: {outputs.hidden_states[0]}")
+        # print(f"Number of hidden states: {len(outputs.hidden_states)}")
+        # print(f"Hidden states distribution across GPUs: {[hidden_state.device for hidden_state in outputs.hidden_states]}")
 
-        print(f"Device placement of original BASE MODEL.")
-        check_device_placement(self.base_model, "Base Model")
+        # print(f"Device placement of original BASE MODEL.")
+        # check_device_placement(self.base_model, "Base Model")
 
         # Extract hidden states of all tokens from the final layer
         hidden_states = outputs.hidden_states[-1].to("cuda:3")
@@ -155,6 +155,7 @@ value_model = ValueModel(
     num_attention_heads=8,
     fc=nn.Linear(4096, 1).to(model.dtype).to("cuda:3")
 )
+
 # value_model = nn.DataParallel(value_model, device_ids=[0, 1])
 
 class StoppingCriteriaSub(StoppingCriteria):

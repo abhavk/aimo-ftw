@@ -144,6 +144,7 @@ def generate_responses(text, step_size=100, max_tokens=2048, num_expansions=3, t
             print("\033[93mGenerating TEST response for input:\n" + text + "\033[0m")
             new_response, stop_word_cond, stop_word_cond = f"Test response {i+1}.", False, None
         else:
+            print("\033[92mGenerating TEST response for input:\n" + text + "\033[0m")
             new_response, stop_word_cond, stop_word_cond = generate_response(tokenized_text, INSIDE_CODE_BLOCK, step_size, local=True)
         maybe_answer = process_text_output(new_response)
         answer = None
@@ -214,13 +215,17 @@ class Tree:
         return node
     
     def expand_node(self, node):
+        if os.getenv("TEST") == "True":
+            test = True
+        else:
+            test = False
         if not node.children:
             expansions = generate_responses(
                             node.state, 
                             step_size=self.step_size, 
                             max_tokens=self.max_tokens, 
                             num_expansions=self.branching_factor,
-                            test=True
+                            test=test
                         )
             for expansion, answer in expansions:
                 new_node = TreeNode(node.state + expansion, id=self.next_id, parent=node, terminal=answer is not None)
