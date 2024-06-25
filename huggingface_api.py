@@ -99,6 +99,7 @@ model.eval()
 class ValueModel(nn.Module):
     def __init__(self, base_model, num_attention_heads, dropout, fc):
         super(ValueModel, self).__init__()
+        self.base_model = base_model
         self.dropout = dropout
         self.fc = fc
         self.hidden_size = base_model.config.hidden_size
