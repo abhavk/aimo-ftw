@@ -106,7 +106,7 @@ class ValueModel(nn.Module):
         self.num_attention_heads = num_attention_heads
 
         # multi-head attention
-        self.multihead_attn = nn.MultiheadAttention(embed_dim=self.hidden_size, num_heads=num_attention_heads)
+        self.multihead_attn = nn.MultiheadAttention(embed_dim=self.hidden_size, num_heads=num_attention_heads).to(model.dtype)
         self.dropout = dropout
         self.fc = fc
 
