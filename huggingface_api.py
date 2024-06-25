@@ -110,7 +110,7 @@ class ValueModel(nn.Module):
         num_gpus = self.get_num_gpus()
         # multi-head attention
         self.multihead_attn = nn.MultiheadAttention(embed_dim=self.hidden_size, num_heads=num_attention_heads).to(model.dtype).to(f"cuda:{num_gpus-1}")
-        self.dropout=nn.Dropout(0.1).to(model.dtype).to(f"cuda:{num_gpus-1}"),
+        self.dropout=nn.Dropout(0.1).to(model.dtype).to(f"cuda:{num_gpus-1}")
         self.fc=nn.Linear(4096, 1).to(model.dtype).to(f"cuda:{num_gpus-1}")
 
     def get_num_gpus(self):
