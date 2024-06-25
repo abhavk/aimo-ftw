@@ -142,7 +142,7 @@ value_model = ValueModel(
     num_attention_heads=8,
     fc=nn.Linear(4096, 1).to(model.dtype).to("cuda:3")
 )
-value_model = nn.DataParallel(value_model, device_ids=[0, 1])
+# value_model = nn.DataParallel(value_model, device_ids=[0, 1])
 
 class StoppingCriteriaSub(StoppingCriteria):
     def __init__(self, stops = [], encounters=1):
