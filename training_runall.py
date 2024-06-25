@@ -182,7 +182,7 @@ class TreeNode:
     
     def recursive_print(self, level=0):
         indent = " " * (level * 4)
-        print(f"{indent}- State: {self.state[:20]}...{self.state[-20:]} (Id: {self.id}, Parent: {self.parent.id if self.parent else None}) Value: {self.value:.2f}")
+        print(f"{indent}- State: {self.state[:20].replace('\n', '')}...{self.state[-20:].replace('\n', '')} (Id: {self.id}, Parent: {self.parent.id if self.parent else None}) Value: {self.value:.2f}")
         for child in self.children:
             child.recursive_print(level + 1)
 
@@ -282,12 +282,12 @@ class Tree:
             answer = sample_best_answer([a[1] for a in self.answers])
         return answer
 
-def predict_mcts(problem, branching_factor=3, step_size=75, max_tokens=2048):
+def predict_mcts(problem, branching_factor=3, step_size=100, max_tokens=2048):
     MAX_TOKENS = max_tokens
     start_text = prompt_2
     start_text = start_text.format(problem)
     tree = Tree(start_text, branching_factor, step_size, MAX_TOKENS)
-    answer = tree.mcts(n_iter=20)
+    answer = tree.mcts(n_iter=30)
     return answer, tree    
     
 

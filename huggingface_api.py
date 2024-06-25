@@ -145,8 +145,8 @@ class ValueModel(nn.Module):
 
         # Pass through fully connected layer
         prediction = self.fc(dropped_out)
-        
-        return prediction
+        pred_tanh = torch.tanh(prediction)
+        return pred_tanh
     
 # get the value model
 value_model = ValueModel(
