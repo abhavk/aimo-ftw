@@ -138,6 +138,7 @@ class ValueModel(nn.Module):
 value_model = ValueModel(
     base_model=model,
     dropout=nn.Dropout(0.1).to(model.dtype),
+    num_attention_heads=8,
     fc=nn.Linear(4096, 1).to(model.dtype)
 )
 
