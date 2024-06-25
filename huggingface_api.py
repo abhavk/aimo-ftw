@@ -114,8 +114,8 @@ class ValueModel(nn.Module):
         print(f"Model dtype: {model.dtype}")
         input_ids = input_ids.to("cuda:0")
         outputs = self.base_model(input_ids=input_ids, output_hidden_states=True)
-        print(f"Outputs: {outputs}")
-        
+        print(f"Outputs: {outputs.hidden_states[-1]}")
+
         # Extract hidden states of all tokens from the final layer
         hidden_states = outputs.hidden_states[-1].to("cuda:3")
 
