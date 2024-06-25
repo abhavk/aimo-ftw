@@ -108,8 +108,10 @@ class ValueModel(nn.Module):
         outputs = self.base_model(input_ids=input_ids)
         
         # Extract hidden states of all tokens from the final layer
-        hidden_states = outputs[0]  # shape: (batch_size, sequence_length, hidden_size)
-        
+        hidden_states = outputs[0]  
+        # shape: (batch_size, sequence_length, hidden_size)
+        # print shape
+        print(f"Shape of hidden states: {hidden_states.shape}")
         # Apply dropout (optional, depending on your use case)
         hidden_states = self.dropout(hidden_states)
         
