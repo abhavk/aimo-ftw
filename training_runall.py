@@ -171,7 +171,9 @@ class TreeNode:
         self.children = []
         self.visits = 0
         # currently define value as the inverse of length
-        self.value = 1/len(state)
+        # tensor([[0.0256]], device='cuda:3', dtype=torch.bfloat16,grad_fn=<AddmmBackward0>)
+        value_tensor = get_value(tokenizer(state, return_tensors='pt')['input_ids'])
+        self.value = value_tensor.item()
         self.terminal = terminal
 
     def __str__(self):
