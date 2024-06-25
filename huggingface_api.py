@@ -85,8 +85,6 @@ model = AutoModelForCausalLM.from_pretrained(
 
 model.eval()
 
-# model.to(device)
-
 # pipeline = transformers.pipeline(
 #     "text-generation",
 #     model=model,
@@ -106,7 +104,7 @@ class ValueModel(nn.Module):
         self.num_attention_heads = num_attention_heads
 
         # multi-head attention
-        self.multihead_attn = nn.MultiheadAttention(embed_dim=self.hidden_size, num_heads=num_attention_heads).to(model.dtype)
+        self.multihead_attn = nn.MultiheadAttention(embed_dim=self.hidden_size, num_heads=num_attention_heads).to(model.dtype).to("cuda:3")
         self.dropout = dropout
         self.fc = fc
 
@@ -140,10 +138,11 @@ class ValueModel(nn.Module):
 # get the value model
 value_model = ValueModel(
     base_model=model,
-    dropout=nn.Dropout(0.1).to(model.dtype),
+    dropout=nn.Dropout(0.1).to(model.dtype).to("cuda:3"),
     num_attention_heads=8,
-    fc=nn.Linear(4096, 1).to(model.dtype)
+    fc=nn.Linear(4096, 1).to(model.dtype).to("cuda:3")
 )
+value_model = nn.DataParallel(value_model, device_ids=[0, 1])
 
 class StoppingCriteriaSub(StoppingCriteria):
     def __init__(self, stops = [], encounters=1):
