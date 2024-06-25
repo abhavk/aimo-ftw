@@ -188,7 +188,7 @@ def generate_response(text, in_code_block, max_new_tokens, old_key_values=None, 
 APPROACH_STOP_WORDS = ["```output", "```python", "```\nOutput" , ")\n```" , "``````output", "``````python"] #,  
 CODE_STOP_WORDS = ["```output", "\n```", "```\nOutput" , "``````output"]
     
-def generate_response_local(text, in_code_block, max_new_tokens, old_key_values=None):
+def generate_response_local(model_inputs, in_code_block, max_new_tokens, old_key_values=None):
     stop_words = None
     stopping_criteria = None
     if in_code_block:
