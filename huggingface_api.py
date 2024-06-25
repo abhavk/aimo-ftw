@@ -103,9 +103,9 @@ class ValueModel(nn.Module):
         self.dropout = dropout
         self.fc = fc
 
-    def forward(self, input_ids, attention_mask):
+    def forward(self, input_ids):
         # Get outputs from the base model
-        outputs = self.base_model(input_ids=input_ids, attention_mask=attention_mask)
+        outputs = self.base_model(input_ids=input_ids)
         
         # Extract hidden states of all tokens from the final layer
         hidden_states = outputs[0]  # shape: (batch_size, sequence_length, hidden_size)
@@ -142,8 +142,7 @@ class StoppingCriteriaSub(StoppingCriteria):
     
 def get_value(input_ids):
     # Get the value of the input
-    attention_mask = input_ids.ne(tokenizer.pad_token_id)
-    prediction = value_model(input_ids, attention_mask)
+    prediction = value_model(input_ids)
     return prediction
 
 def query(payload):
