@@ -1,0 +1,6 @@
+User: Below is a math problem you are to solve (positive numerical answer):
+\"{}\"
+To accomplish this, think carefully and write a short, one-sentence approach for attacking the problem. 
+Then use a sympy-based approach and implement it in python code, surrounded by a ```python{{code}}``` block. 
+Refine your approach and iterate until you are confident of an answer. Put your final numerical answer within \\boxed{{}}\\. 
+Note: While the intermediate outputs may be real numbers, the final answer is always a numerical value."""
