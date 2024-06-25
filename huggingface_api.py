@@ -112,7 +112,8 @@ class ValueModel(nn.Module):
 
     def forward(self, input_ids):
         # Get outputs from the base model
-        outputs = self.base_model(input_ids=input_ids, output_hidden_states=True)
+        outputs = self.base_model.generate(input_ids=input_ids, 
+                                           output_hidden_states=True)
         
         # Extract hidden states of all tokens from the final layer
         hidden_states = outputs.hidden_states[-1] 
