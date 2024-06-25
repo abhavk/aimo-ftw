@@ -181,7 +181,7 @@ class TreeNode:
     
     def recursive_print(self, level=0):
         indent = " " * (level * 4)
-        print(f"{indent}- State: {self.state[:2]}...{self.state[-2:]} (Id: {self.id}, Parent: {self.parent.id if self.parent else None})")
+        print(f"{indent}- State: {self.state[:10]}...{self.state[-10:]} (Id: {self.id}, Parent: {self.parent.id if self.parent else None}) Value: {self.value:.2f}")
         for child in self.children:
             child.recursive_print(level + 1)
 
