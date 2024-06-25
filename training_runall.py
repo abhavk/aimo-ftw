@@ -314,4 +314,5 @@ if __name__ == '__main__':
 
     # sample value of root node
     tokenized_text = tokenizer(final_tree.root.state, return_tensors='pt')
+    print(f"Tokenized text input: {tokenized_text}")
     print(f"Value of input problem: {get_value(tokenized_text)}")
