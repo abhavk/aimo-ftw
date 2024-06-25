@@ -116,7 +116,7 @@ class ValueModel(nn.Module):
         outputs = self.base_model(input_ids=input_ids, output_hidden_states=True)
         
         # Extract hidden states of all tokens from the final layer
-        hidden_states = outputs.hidden_states[-1] 
+        hidden_states = outputs.hidden_states[-1].to("cuda:3")
 
         # shape: (batch_size, sequence_length, hidden_size)
         # print shape
