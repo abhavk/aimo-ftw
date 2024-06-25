@@ -87,13 +87,13 @@ model.eval()
 
 # model.to(device)
 
-pipeline = transformers.pipeline(
-    "text-generation",
-    model=model,
-    tokenizer=tokenizer,
-    torch_dtype='auto',
-    device_map=device_map,
-)
+# pipeline = transformers.pipeline(
+#     "text-generation",
+#     model=model,
+#     tokenizer=tokenizer,
+#     torch_dtype='auto',
+#     device_map=device_map,
+# )
 
 
 class ValueModel(nn.Module):
@@ -105,10 +105,10 @@ class ValueModel(nn.Module):
 
     def forward(self, input_ids):
         # Get outputs from the base model
-        outputs = self.base_model(input_ids=input_ids)
+        outputs = self.base_model(input_ids=input_ids, output_hidden_states=True)
         
         # Extract hidden states of all tokens from the final layer
-        hidden_states = outputs[0]  
+        hidden_states = outputs.hidden_states[-1] 
         # shape: (batch_size, sequence_length, hidden_size)
         # print shape
         print(f"Shape of hidden states: {hidden_states.shape}")
