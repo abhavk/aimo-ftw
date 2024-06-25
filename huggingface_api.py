@@ -93,6 +93,11 @@ model.eval()
 #     device_map=device_map,
 # )
 
+def check_device_placement(model, model_name="Model"):
+    for name, param in model.named_parameters():
+        print(f"{model_name} parameter '{name}' is on device: {param.device}")
+    for name, buffer in model.named_buffers():
+        print(f"{model_name} buffer '{name}' is on device: {buffer.device}")
 
 class ValueModel(nn.Module):
     def __init__(self, base_model, num_attention_heads, dropout, fc):
@@ -118,6 +123,9 @@ class ValueModel(nn.Module):
         print(f"First hidden values: {outputs.hidden_states[0]}")
         print(f"Number of hidden states: {len(outputs.hidden_states)}")
         print(f"Hidden states distribution across GPUs: {[hidden_state.device for hidden_state in outputs.hidden_states]}")
+
+        print(f"Device placement of original BASE MODEL.")
+        check_device_placement(self.base_model, "Base Model")
 
         # Extract hidden states of all tokens from the final layer
         hidden_states = outputs.hidden_states[-1].to("cuda:3")
