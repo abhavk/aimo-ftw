@@ -100,40 +100,38 @@ def check_device_placement(model, model_name="Model"):
         print(f"{model_name} buffer '{name}' is on device: {buffer.device}")
 
 class ValueModel(nn.Module):
-    def __init__(self, base_model, num_attention_heads, dropout, fc):
+    def __init__(self, base_model, num_attention_heads):
         super(ValueModel, self).__init__()
         self.base_model = base_model
-        self.dropout = dropout
-        self.fc = fc
         self.hidden_size = base_model.config.hidden_size
         self.num_attention_heads = num_attention_heads
 
+        #get number of cuda devices
+        num_gpus = self.get_num_gpus()
         # multi-head attention
-        self.multihead_attn = nn.MultiheadAttention(embed_dim=self.hidden_size, num_heads=num_attention_heads).to(model.dtype).to("cuda:3")
-        self.dropout = dropout
-        self.fc = fc
+        self.multihead_attn = nn.MultiheadAttention(embed_dim=self.hidden_size, num_heads=num_attention_heads).to(model.dtype).to(f"cuda:{num_gpus-1}")
+        self.dropout=nn.Dropout(0.1).to(model.dtype).to(f"cuda:{num_gpus-1}"),
+        self.fc=nn.Linear(4096, 1).to(model.dtype).to(f"cuda:{num_gpus-1}")
+
+    def get_num_gpus(self):
+        return torch.cuda.device_count()
 
     def forward(self, input_ids):
         # Get outputs from the base model
-        print(f"Input id dtype: {input_ids.dtype}")
-        print(f"Model dtype: {model.dtype}")
         input_ids = input_ids.to("cuda:0")
         outputs = self.base_model(input_ids=input_ids, output_hidden_states=True)
         # print(f"Last hidden values: {outputs.hidden_states[-1]}")
         # print(f"First hidden values: {outputs.hidden_states[0]}")
         # print(f"Number of hidden states: {len(outputs.hidden_states)}")
         # print(f"Hidden states distribution across GPUs: {[hidden_state.device for hidden_state in outputs.hidden_states]}")
-
         # print(f"Device placement of original BASE MODEL.")
         # check_device_placement(self.base_model, "Base Model")
 
         # Extract hidden states of all tokens from the final layer
-        hidden_states = outputs.hidden_states[-1].to("cuda:3")
+        hidden_states = outputs.hidden_states[-1].to(f"cuda:{self.get_num_gpus()-1}")
 
         # shape: (batch_size, sequence_length, hidden_size)
-        # print shape
         print(f"Shape of hidden states: {hidden_states.shape}")
-
         hidden_states = hidden_states.permute(1, 0, 2)  # (sequence_length, batch_size, hidden_size)
         # Apply multi-head attention
         attn_output, attn_weights = self.multihead_attn(hidden_states, hidden_states, hidden_states)
@@ -148,12 +146,29 @@ class ValueModel(nn.Module):
         pred_tanh = torch.tanh(prediction)
         return pred_tanh
     
+    def save_model(self, file_path):
+        torch.save({
+            'num_attention_heads': self.num_attention_heads,
+            'state_dict': {
+                'multihead_attn': self.multihead_attn.state_dict(),
+                'fc': self.fc.state_dict()
+            }
+        }, file_path)
+
+    @staticmethod
+    def load_model(base_model, file_path):
+        checkpoint = torch.load(file_path)
+        num_attention_heads = checkpoint['num_attention_heads']
+        model = ValueModel(base_model, num_attention_heads)
+        model.multihead_attn.load_state_dict(checkpoint['state_dict']['multihead_attn'])
+        model.fc.load_state_dict(checkpoint['state_dict']['fc'])
+        model.eval()  # Set the model to evaluation mode
+        return model
+    
 # get the value model
 value_model = ValueModel(
     base_model=model,
-    dropout=nn.Dropout(0.1).to(model.dtype).to("cuda:3"),
-    num_attention_heads=8,
-    fc=nn.Linear(4096, 1).to(model.dtype).to("cuda:3")
+    num_attention_heads=4
 )
 
 # value_model = nn.DataParallel(value_model, device_ids=[0, 1])

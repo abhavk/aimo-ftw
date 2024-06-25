@@ -151,7 +151,7 @@ def generate_responses(text, step_size=100, max_tokens=2048, num_expansions=3, t
         answer = None
         if maybe_answer > 0:
             # write in green
-            print("\033[92mAnswer found: {maybe_answer}\033[0m")
+            print(f"\033[92mAnswer found: {maybe_answer}\033[0m")
             answer = maybe_answer
 
         # TODO: Add code block handling
