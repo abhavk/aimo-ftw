@@ -241,6 +241,7 @@ class Tree:
                         test=test
                     )
         for expansion, answer in expansions:
+            print(f"\033[93mCreated child: {expansion}\033[0m")
             new_node = TreeNode(node.state + expansion, id=self.next_id, parent=node, terminal=answer is not None)
             self.next_id += 1
             if answer:
@@ -279,8 +280,6 @@ class Tree:
         answer = None
         for _ in range(n_iter):
             children = self.expand()
-            for child in children:
-                print(f"\033[93mCreated child: {child.state}\033[0m")
         if self.answers:
             answer = sample_best_answer([a[1] for a in self.answers])
         return answer
