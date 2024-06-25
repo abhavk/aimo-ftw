@@ -126,8 +126,8 @@ class ValueModel(nn.Module):
 # get the value model
 value_model = ValueModel(
     base_model=model,
-    dropout=nn.Dropout(0.1),
-    fc=nn.Linear(4096, 1)
+    dropout=nn.Dropout(0.1).to(model.dtype),
+    fc=nn.Linear(4096, 1).to(model.dtype)
 )
 
 class StoppingCriteriaSub(StoppingCriteria):
