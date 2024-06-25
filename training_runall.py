@@ -1,5 +1,5 @@
 # import from other files
-from huggingface_api import generate_response, tokenizer
+from huggingface_api import generate_response, get_value, tokenizer
 from response_processing import process_text_output, process_code, naive_parse
 import csv
 from tqdm import tqdm
@@ -286,7 +286,6 @@ def attempt_training_problem(csv_file, number, mcts=False):
                     else:
                         return predict(problem)
 
-
 if __name__ == '__main__':
     # read arguments and parse them
     import argparse
@@ -312,3 +311,7 @@ if __name__ == '__main__':
     for answer in answers:
         print(f"Answer {count}: {answer}")
         count += 1
+
+    # sample value of root node
+    tokenized_text = tokenizer(final_tree.root.state, return_tensors='pt')
+    print(f"Value of input problem: {get_value(tokenized_text)}")

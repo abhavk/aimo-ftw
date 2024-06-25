@@ -4,6 +4,7 @@ import transformers
 import torch
 import gc
 import os
+import torch.nn as nn
 # os.environ['CUDA_LAUNCH_BLOCKING'] = '1'
 
 # torch.cuda.set_device(0)
@@ -95,6 +96,38 @@ pipeline = transformers.pipeline(
 )
 
 
+class ValueModel(nn.Module):
+    def __init__(self, base_model, dropout, fc):
+        super(ValueModel, self).__init__()
+        self.base_model = base_model
+        self.dropout = dropout
+        self.fc = fc
+
+    def forward(self, input_ids, attention_mask):
+        # Get outputs from the base model
+        outputs = self.base_model(input_ids=input_ids, attention_mask=attention_mask)
+        
+        # Extract hidden states of all tokens from the final layer
+        hidden_states = outputs[0]  # shape: (batch_size, sequence_length, hidden_size)
+        
+        # Apply dropout (optional, depending on your use case)
+        hidden_states = self.dropout(hidden_states)
+        
+        # Flatten the hidden states (batch_size, sequence_length * hidden_size)
+        flattened_hidden_states = hidden_states.view(hidden_states.size(0), -1)
+        
+        # Pass through fully connected layer
+        prediction = self.fc(flattened_hidden_states)
+        
+        return prediction
+    
+# get the value model
+value_model = ValueModel(
+    base_model=model,
+    dropout=nn.Dropout(0.1),
+    fc=nn.Linear(4096, 1)
+)
+
 class StoppingCriteriaSub(StoppingCriteria):
     def __init__(self, stops = [], encounters=1):
         super().__init__()
@@ -106,6 +139,12 @@ class StoppingCriteriaSub(StoppingCriteria):
             if torch.all(torch.eq(stop,last_token)):
                 return True
         return False
+    
+def get_value(input_ids):
+    # Get the value of the input
+    attention_mask = input_ids.ne(tokenizer.pad_token_id)
+    prediction = value_model(input_ids, attention_mask)
+    return prediction
 
 def query(payload):
 	response = requests.post(RL_API_URL, headers=headers, json=payload)
