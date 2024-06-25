@@ -273,7 +273,7 @@ class Tree:
             predicted_answer = [a[1] for a in self.answers if a[0] == node][0]
             true_value = 1 if predicted_answer == true_answer else -1
             estimated_value = node.value
-            updates.append((node, true_value, estimated_value))
+            updates.append((node.state, true_value, estimated_value))
         return updates
 
     def mcts(self, n_iter=10):
