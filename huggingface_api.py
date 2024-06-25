@@ -203,7 +203,7 @@ def generate_response_local(text, in_code_block, max_new_tokens, old_key_values=
     temperature = 0.9
     top_p = 1.0
 
-    model_inputs = tokenizer(text, return_tensors='pt')
+    # model_inputs = tokenizer(text, return_tensors='pt')
     # print("Tokenized text input:", model_inputs)
     model_inputs = model_inputs.to(model.device)
     # print("Mapped model input", model_inputs)
