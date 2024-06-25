@@ -97,9 +97,15 @@ model.eval()
 
 
 class ValueModel(nn.Module):
-    def __init__(self, base_model, dropout, fc):
+    def __init__(self, base_model, num_attention_heads, dropout, fc):
         super(ValueModel, self).__init__()
-        self.base_model = base_model
+        self.dropout = dropout
+        self.fc = fc
+        self.hidden_size = base_model.config.hidden_size
+        self.num_attention_heads = num_attention_heads
+
+        # multi-head attention
+        self.multihead_attn = nn.MultiheadAttention(embed_dim=self.hidden_size, num_heads=num_attention_heads)
         self.dropout = dropout
         self.fc = fc
 
@@ -109,17 +115,22 @@ class ValueModel(nn.Module):
         
         # Extract hidden states of all tokens from the final layer
         hidden_states = outputs.hidden_states[-1] 
+
         # shape: (batch_size, sequence_length, hidden_size)
         # print shape
         print(f"Shape of hidden states: {hidden_states.shape}")
-        # Apply dropout (optional, depending on your use case)
-        hidden_states = self.dropout(hidden_states)
-        
-        # Flatten the hidden states (batch_size, sequence_length * hidden_size)
-        flattened_hidden_states = hidden_states.view(hidden_states.size(0), -1)
-        
+
+        hidden_states = hidden_states.permute(1, 0, 2)  # (sequence_length, batch_size, hidden_size)
+        # Apply multi-head attention
+        attn_output, attn_weights = self.multihead_attn(hidden_states, hidden_states, hidden_states)
+
+        # Apply dropout
+        attn_output = attn_output.permute(1, 0, 2)  # (batch_size, sequence_length, hidden_size)
+        pooled_hidden_states = torch.mean(attn_output, dim=1)  # (batch_size, hidden_size)
+        dropped_out = self.dropout(pooled_hidden_states)
+
         # Pass through fully connected layer
-        prediction = self.fc(flattened_hidden_states)
+        prediction = self.fc(dropped_out)
         
         return prediction
     
