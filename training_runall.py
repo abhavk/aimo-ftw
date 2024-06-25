@@ -1,6 +1,7 @@
 # import from other files
 from huggingface_api import generate_response, get_value, tokenizer
 from response_processing import process_text_output, process_code, naive_parse
+from prompts import prompt_2
 import csv
 from tqdm import tqdm
 import os
@@ -181,7 +182,7 @@ class TreeNode:
     
     def recursive_print(self, level=0):
         indent = " " * (level * 4)
-        print(f"{indent}- State: {self.state[:10]}...{self.state[-10:]} (Id: {self.id}, Parent: {self.parent.id if self.parent else None}) Value: {self.value:.2f}")
+        print(f"{indent}- State: {self.state[:20]}...{self.state[-20:]} (Id: {self.id}, Parent: {self.parent.id if self.parent else None}) Value: {self.value:.2f}")
         for child in self.children:
             child.recursive_print(level + 1)
 
@@ -283,12 +284,10 @@ class Tree:
 
 def predict_mcts(problem, branching_factor=3, step_size=75, max_tokens=2048):
     MAX_TOKENS = max_tokens
-    start_text = """User: Below is a math problem you are to solve (non-negative numerical answer):
-\"{}\"
-To accomplish this, think carefully and write a short, one-sentence approach for attacking the problem. Then use a sympy-based approach and implement it in python code, surrounded by a ```python{{code}}``` block. Refine your approach and iterate until you are confident of an answer. Put your final numerical answer within \\boxed{{}}\\. Note: While the intermediate outputs may be real numbers, the final answer is always a numerical value."""
+    start_text = prompt_2
     start_text = start_text.format(problem)
     tree = Tree(start_text, branching_factor, step_size, MAX_TOKENS)
-    answer = tree.mcts()
+    answer = tree.mcts(n_iter=20)
     return answer, tree    
     
 
