@@ -404,6 +404,11 @@ if __name__ == '__main__':
 
     for i in range(args.num_iter):
         try: 
+            for _ in range(5):
+                torch.cuda.empty_cache()
+                gc.collect()
+                time.sleep(0.2)
+
             problem_number = (i % 10) + 1
             print(f"\n\nProblem number: {problem_number}")
             print(f"Iteration: {i+1}")
