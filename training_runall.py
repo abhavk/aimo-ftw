@@ -402,7 +402,10 @@ if __name__ == '__main__':
     # List to hold each problem and answer
     answers = []
 
-    for i in range(1):
+    for i in range(1000):
+        problem_number = (1000 % 10) + 1
+        print(f"\n\nProblem number: {problem_number}")
+        print(f"Iteration: {i+1}")
         answer, final_tree, true_answer, all_answers = attempt_training_problem(
                                                 csv_file_path, 
                                                 args.input,
@@ -416,30 +419,28 @@ if __name__ == '__main__':
         print(f"\n\nPredicted Answer: {answer}")
         print(f"All answers: {all_answers}")
         print(f"True answer: {true_answer}")
+        print(f"\n\n")
+        
+        final_tree.print_tree()
+        count = 1
+        for answer in answers:
+            print(f"Answer {count}: {answer}")
+            count += 1
 
-    print(f"\n\n")
-    final_tree.print_tree()
-    count = 1
-    for answer in answers:
-        print(f"Answer {count}: {answer}")
-        count += 1
+        # save the tree to a file
+        def save_tree(tree, file_name):
+            with open(file_name, 'wb') as file:
+                pickle.dump(tree, file)
+        
+        save_tree(final_tree, f"/opt/dlami/nvme/hello_{problem_number}_i.pkl")
 
-    
-    # save the tree to a file
-    def save_tree(tree, file_name):
-        with open(file_name, 'wb') as file:
-            pickle.dump(tree, file)
-    
-    save_tree(final_tree, f"tree_{args.input}.pkl")
+        results, root_val = final_tree.root.dfs_result(true_answer)
 
-    results = final_tree.collect_results(true_answer)
-    print(f"Results: {results}")
-
-    # append results to the CSV file
-    with open(args.results_csv_path, 'a') as file:
-        writer = csv.writer(file)
-        for result in results:
-            writer.writerow(result)
+        # append results to the CSV file
+        with open(args.results_csv_path, 'a') as file:
+            writer = csv.writer(file)
+            for result in results:
+                writer.writerow(result)
 
     # # sample value of root node
     # tokenized_text = tokenizer(final_tree.root.state, return_tensors='pt')
