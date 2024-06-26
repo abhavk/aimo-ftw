@@ -386,11 +386,11 @@ if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser()
     # read the input number
-    parser.add_argument('--input', type=int, required=True)
+    parser.add_argument('--num_iter', type=int, required=True)
     parser.add_argument('--branching_factor', type=int, default=3)
     parser.add_argument('--max_branching', type=int, default=6)
     parser.add_argument('--mcts', action='store_true')
-    parser.add_argument('--n_iter', type=int, default=30)
+    parser.add_argument('--num_simulations', type=int, default=100)
     parser.add_argument('--step_size', type=int, default=100)
     parser.add_argument('--max_tokens', type=int, default=1024)
     parser.add_argument('--results_csv_path', type=str, default="results.csv")
@@ -402,17 +402,17 @@ if __name__ == '__main__':
     # List to hold each problem and answer
     answers = []
 
-    for i in range(1000):
-        problem_number = (1000 % 10) + 1
+    for i in range(args.num_iter):
+        problem_number = (i % 10) + 1
         print(f"\n\nProblem number: {problem_number}")
         print(f"Iteration: {i+1}")
         answer, final_tree, true_answer, all_answers = attempt_training_problem(
                                                 csv_file_path, 
-                                                args.input,
+                                                problem_number,
                                                 args.mcts, 
                                                 args.branching_factor, 
                                                 args.max_branching, 
-                                                args.n_iter,
+                                                args.num_simulations,
                                                 args.step_size,
                                                 args.max_tokens
                                             ) 
