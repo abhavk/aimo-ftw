@@ -6,6 +6,8 @@ import csv
 from tqdm import tqdm
 import os
 from dotenv import load_dotenv
+import pickle
+
 load_dotenv()
 
 import torch
@@ -286,8 +288,12 @@ class Tree:
         next_up = []
         for node in terminal_nodes:
             # get the true value of the node
-            predicted_answer = [a[1] for a in self.answers if a[0] == node][0]
-            true_value = 1 if predicted_answer == true_answer else -1
+            predicted_answer_list = [a[1] for a in self.answers if a[0] == node]
+            if predicted_answer_list: 
+                pred = predicted_answer_list[0]
+            else:
+                pred = 0
+            true_value = 1 if pred == true_answer else -1
             estimated_value = node.value
             updates.append((node.state, estimated_value, true_value))
             if node.parent:
@@ -394,6 +400,14 @@ if __name__ == '__main__':
     for answer in answers:
         print(f"Answer {count}: {answer}")
         count += 1
+
+    
+    # save the tree to a file
+    def save_tree(tree, file_name):
+        with open(file_name, 'wb') as file:
+            pickle.dump(tree, file)
+    
+    save_tree(final_tree, f"tree_{args.input}.pkl")
 
     results = final_tree.collect_results(true_answer)
     print(f"Results: {results}")
