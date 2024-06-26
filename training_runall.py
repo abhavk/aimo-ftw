@@ -433,7 +433,7 @@ if __name__ == '__main__':
                 with open(file_name, 'wb') as file:
                     pickle.dump(tree, file)
             
-            save_tree(final_tree, f"/opt/dlami/nvme/hello_{problem_number}_i.pkl")
+            save_tree(final_tree, f"/opt/dlami/nvme/tree_{problem_number}_{i}_{args.results_csv_path}.pkl")
 
             results, root_val = final_tree.root.dfs_result(true_answer)
 
