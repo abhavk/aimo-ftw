@@ -4,11 +4,10 @@ from huggingface_api import tokenizer, value_model
 from pandas import read_csv
 
 class TextValueDataset(Dataset):
-    def __init__(self, texts, values, tokenizer, max_length=512):
+    def __init__(self, texts, values, tokenizer):
         self.texts = texts
         self.values = values
         self.tokenizer = tokenizer
-        self.max_length = max_length
 
     def __len__(self):
         return len(self.texts)
@@ -19,7 +18,7 @@ class TextValueDataset(Dataset):
         value = self.values.iloc[idx]
 
         # Tokenize the text
-        encoding = self.tokenizer(text, return_tensors='pt', max_length=self.max_length, padding='max_length', truncation=True)
+        encoding = self.tokenizer(text, return_tensors='pt')
         input_ids = encoding['input_ids'].squeeze(0)  # Remove batch dimension
         
         return input_ids, torch.tensor([value], dtype=torch.float32)
