@@ -58,12 +58,21 @@ def train_value_model(dataloader, model):
                 outputs = outputs.to(last_gpu)
                 outputs = outputs.float()                
                 # Check data types right before loss calculation
-                print(f'Inputs dtype: {inputs.dtype}, Outputs dtype: {outputs.dtype}, Labels dtype: {labels.dtype}')
+                # print(f'Inputs dtype: {inputs.dtype}, Outputs dtype: {outputs.dtype}, Labels dtype: {labels.dtype}')
                 loss = criterion(outputs, labels)
-                print(f'Loss dtype: {loss.dtype}')  # Check the dtype of loss
+                print(f'Loss: {loss.item()}')
+                # print(f'Loss dtype: {loss.dtype}')  # Check the dtype of loss
                 loss.backward()
                 optimizer.step()
                 running_loss += loss.item()
         print(f'Epoch {epoch+1}, Loss: {running_loss/len(dataloader)}')
+
+        # Save the model after each epoch
+        try:
+            model.save_model(f"checkpoints/model_epoch_{epoch+1}.pth")
+            print("\033[92mModel saved at checkpoints/model_epoch_{epoch+1}.pth\033[0m\n")
+        except:
+            torch.save(model.state_dict(), f"checkpoints/model_epoch_{epoch+1}.pth")
+
 
 
