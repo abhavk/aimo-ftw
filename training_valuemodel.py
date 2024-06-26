@@ -50,6 +50,7 @@ def train_value_model(dataloader, model):
         running_loss=0.0
         for inputs, labels in dataloader:
                 inputs = inputs.to('cuda:0')
+                labels.to(dtype=torch.bfloat16)
                 labels = labels.to(last_gpu)
                 optimizer.zero_grad()
                 # fwd pass
