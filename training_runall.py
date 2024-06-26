@@ -249,6 +249,11 @@ class Tree:
                         num_expansions=self.branching_factor,
                         test=test
                     )
+        # if all expansions are empty, mark the node as terminal
+        if all([expansion[0].strip() == '' for expansion in expansions]):
+            node.terminal = True
+            return []
+        
         for expansion, answer, terminal in expansions:
             print(f"\033[93mCreated child: {expansion}\033[0m")
             new_node = TreeNode(node.state + expansion, id=self.next_id, parent=node, terminal=terminal)
