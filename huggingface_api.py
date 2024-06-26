@@ -244,6 +244,7 @@ def generate_response_local(model_inputs, in_code_block, max_new_tokens, old_key
     # print("Generation output:")
     # print(generation_output)
     output_ids = generation_output.sequences[0]
+    token_length = len(output_ids)
     old_key_values = generation_output.past_key_values
 
     decoded_output = tokenizer.decode(output_ids, skip_special_tokens=True)
@@ -252,7 +253,7 @@ def generate_response_local(model_inputs, in_code_block, max_new_tokens, old_key
     # for stop_word in stop_words:
     #     stop_word_cond = stop_word_cond or (decoded_output[-len(stop_word):]==stop_word)
 
-    return decoded_output, old_key_values
+    return decoded_output, old_key_values, token_length
 
 def generate_response_api(problem, type, max_new_tokens=1042):
     if type == "approach":

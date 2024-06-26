@@ -127,7 +127,7 @@ def in_code_block(text):
     return False
 
 
-def generate_responses(text, step_size=100, max_tokens=2048, num_expansions=3, test=False):
+def generate_responses(text, max_tokens, step_size=100, num_expansions=3, test=False):
     # TODO: Add code block detection/handling for later
     INSIDE_CODE_BLOCK = False
     # INSIDE_CODE_BLOCK = in_code_block(text) 
@@ -144,23 +144,32 @@ def generate_responses(text, step_size=100, max_tokens=2048, num_expansions=3, t
         # TODO: Make it more efficient by storing old_key_values
         if test:
             print("\033[91mGenerating TEST response actually.\033[0m")
-            new_response, old_key_vals = f"Test response {i+1}.", None
+            new_response, old_key_vals, token_length = f"Test response {i+1}.", None
         else:
-            new_response, old_key_vals = generate_response(tokenized_text, INSIDE_CODE_BLOCK, step_size, local=True)
+            new_response, old_key_vals, token_length = generate_response(tokenized_text, INSIDE_CODE_BLOCK, step_size, local=True)
         maybe_answer = process_text_output(new_response)
         answer = None
         if maybe_answer > 0:
             # write in green
             print(f"\033[92mAnswer found: {maybe_answer}\033[0m")
             answer = maybe_answer
-
         # TODO: Add code block handling
         # if stop_word_cond:
         #     print(f"Stopped: Stop word encountered.")
         # else:
         #     print(f"Stopped: End of generation.")
+
+        terminal = False
+        if answer is not None:
+            print(f"\033[93mGenerated: {new_response}\033[0m")
+            terminal = True
+
+        if token_length == max_tokens:
+            print(f"\033[91mStopped this branch: Max tokens reached.\033[0m")
+            terminal = True
+
         gen_response = new_response[len(text):]
-        responses.append((gen_response, answer))
+        responses.append((gen_response, answer, terminal))
     return responses
     
 
@@ -235,14 +244,14 @@ class Tree:
             test = False
         expansions = generate_responses(
                         node.state, 
+                        self.max_tokens, 
                         step_size=self.step_size, 
-                        max_tokens=self.max_tokens, 
                         num_expansions=self.branching_factor,
                         test=test
                     )
-        for expansion, answer in expansions:
+        for expansion, answer, terminal in expansions:
             print(f"\033[93mCreated child: {expansion}\033[0m")
-            new_node = TreeNode(node.state + expansion, id=self.next_id, parent=node, terminal=answer is not None)
+            new_node = TreeNode(node.state + expansion, id=self.next_id, parent=node, terminal=terminal)
             self.next_id += 1
             if answer:
                 self.answers.append((new_node, answer))
@@ -267,13 +276,41 @@ class Tree:
 
     def collect_results(self, true_answer):
         updates = []
-        terminal_nodes = [n for n in self.unroll() if n.terminal]
+        all_nodes = self.unroll()
+        terminal_nodes = [n for n in all_nodes if n.terminal]
+        next_up = []
         for node in terminal_nodes:
             # get the true value of the node
             predicted_answer = [a[1] for a in self.answers if a[0] == node][0]
             true_value = 1 if predicted_answer == true_answer else -1
             estimated_value = node.value
-            updates.append((node.state, true_value, estimated_value))
+            updates.append((node.state, estimated_value, true_value))
+            if node.parent:
+                next_up.append((node.parent, true_value))
+
+        while next_up:
+            next_iteration = []
+            while next_up:
+                node, true_value = next_up.pop()
+                # check if any of the node's children are also in next_up
+                children = [c for c in node.children if c in [n[0] for n in next_up]]
+                if children:
+                    # if so, add to the list to process in the next iteration
+                    next_iteration.append((node, true_value))
+                    continue
+                # otherwise update the value of the parent
+                # get all occurrences of this node in next_up
+                all_occurrences = [n for n in next_up if n[0] == node]
+                # get the average value of the node
+                average_value = sum(n[1] for n in all_occurrences) / len(node.children)
+                # update the value of the node
+                updates.append((node.state, node.value, average_value))
+                if node.parent:
+                    next_iteration.append((node.parent, average_value))
+            
+            # Prepare for the next iteration
+            next_up.extend(next_iteration)
+        
         return updates
 
     def mcts(self, n_iter=10):
@@ -289,8 +326,7 @@ def predict_mcts(problem, branching_factor, max_branching, step_size, max_tokens
     start_text = start_text.format(problem)
     tree = Tree(start_text, branching_factor, step_size, max_tokens, max_branching)
     answer = tree.mcts(n_iter=n_iter)
-    return answer, tree    
-    
+    return answer, tree
 
 def attempt_training_problem(csv_file, number, mcts, branching_factor, max_branching, n_iter, step_size, max_tokens):
     if mcts:
@@ -316,7 +352,6 @@ def attempt_training_problem(csv_file, number, mcts, branching_factor, max_branc
                         predicted_answer, tree = predict_mcts(problem, branching_factor, max_branching, step_size, max_tokens, n_iter)
                     else:
                         predicted_answer, tree = predict(problem)
-                
                 return predicted_answer, tree, answer
 
 if __name__ == '__main__':
@@ -330,7 +365,8 @@ if __name__ == '__main__':
     parser.add_argument('--mcts', action='store_true')
     parser.add_argument('--n_iter', type=int, default=30)
     parser.add_argument('--step_size', type=int, default=100)
-    parser.add_argument('--max_tokens', type=int, default=2048)
+    parser.add_argument('--max_tokens', type=int, default=1024)
+    parser.add_argument('--results_csv_path', type=str, default="results.csv")
     args = parser.parse_args()
 
     # Path to your CSV file
@@ -340,15 +376,16 @@ if __name__ == '__main__':
     answers = []
 
     for i in range(1):
-        answer, final_tree, true_answer = attempt_training_problem(csv_file_path, 
-                                                                   args.input,
-                                                                   args.mcts, 
-                                                                   args.branching_factor, 
-                                                                   args.max_branching, 
-                                                                   args.n_iter,
-                                                                   args.step_size,
-                                                                   args.max_tokens
-                                                                   ) 
+        answer, final_tree, true_answer = attempt_training_problem(
+                                                csv_file_path, 
+                                                args.input,
+                                                args.mcts, 
+                                                args.branching_factor, 
+                                                args.max_branching, 
+                                                args.n_iter,
+                                                args.step_size,
+                                                args.max_tokens
+                                            ) 
         print(f"Predicted Answer: {answer}")
 
     print(f"\n\n")
@@ -359,8 +396,13 @@ if __name__ == '__main__':
         count += 1
 
     results = final_tree.collect_results(true_answer)
-    from pprint import pprint
-    pprint(f"Results: {results}")
+    print(f"Results: {results}")
+
+    # append results to the CSV file
+    with open(args.results_csv_path, 'a') as file:
+        writer = csv.writer(file)
+        for result in results:
+            writer.writerow(result)
 
     # # sample value of root node
     # tokenized_text = tokenizer(final_tree.root.state, return_tensors='pt')
