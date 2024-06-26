@@ -14,11 +14,19 @@ class TextValueDataset(Dataset):
         return len(self.texts)
 
     def __getitem__(self, idx):
-        text = self.texts[idx]
-        value = self.values[idx]
-        encoding = self.tokenizer(text, return_tensors='pt', padding='max_length', truncation=True, max_length=self.max_length)
+        # Retrieve the single text entry at the specific index
+        text = self.texts.iloc[idx]  # Ensure using .iloc for accurate indexing in pandas
+        value = self.values.iloc[idx]
+
+        # Tokenize the text
+        encoding = self.tokenizer(text, return_tensors='pt', max_length=self.max_length, padding='max_length', truncation=True)
         input_ids = encoding['input_ids'].squeeze(0)  # Remove batch dimension
+        
         return input_ids, torch.tensor([value], dtype=torch.float32)
+
+# Set the EOS token as the padding token if it isn't already set
+if tokenizer.pad_token is None:
+    tokenizer.pad_token = tokenizer.eos_token
 
 trainset = read_csv('training_data.csv')
 # Assuming you have a tokenizer for your base model
