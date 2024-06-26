@@ -208,6 +208,7 @@ class TreeNode:
                 child_vals.append(child_val)
                 return_list.extend(child_list)  
             return_val = sum(child_vals) / len(child_vals)
+            return_list.append((self.state, return_val))
         return return_list, return_val
 
     def __str__(self):
