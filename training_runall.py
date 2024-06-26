@@ -403,44 +403,48 @@ if __name__ == '__main__':
     answers = []
 
     for i in range(args.num_iter):
-        problem_number = (i % 10) + 1
-        print(f"\n\nProblem number: {problem_number}")
-        print(f"Iteration: {i+1}")
-        answer, final_tree, true_answer, all_answers = attempt_training_problem(
-                                                csv_file_path, 
-                                                problem_number,
-                                                args.mcts, 
-                                                args.branching_factor, 
-                                                args.max_branching, 
-                                                args.num_simulations,
-                                                args.step_size,
-                                                args.max_tokens
-                                            ) 
-        print(f"\n\nPredicted Answer: {answer}")
-        print(f"All answers: {all_answers}")
-        print(f"True answer: {true_answer}")
-        print(f"\n\n")
-        
-        final_tree.print_tree()
-        count = 1
-        for answer in answers:
-            print(f"Answer {count}: {answer}")
-            count += 1
+        try: 
+            problem_number = (i % 10) + 1
+            print(f"\n\nProblem number: {problem_number}")
+            print(f"Iteration: {i+1}")
+            answer, final_tree, true_answer, all_answers = attempt_training_problem(
+                                                    csv_file_path, 
+                                                    problem_number,
+                                                    args.mcts, 
+                                                    args.branching_factor, 
+                                                    args.max_branching, 
+                                                    args.num_simulations,
+                                                    args.step_size,
+                                                    args.max_tokens
+                                                ) 
+            print(f"\n\nPredicted Answer: {answer}")
+            print(f"All answers: {all_answers}")
+            print(f"True answer: {true_answer}")
+            print(f"\n\n")
+            
+            final_tree.print_tree()
+            count = 1
+            for answer in answers:
+                print(f"Answer {count}: {answer}")
+                count += 1
 
-        # save the tree to a file
-        def save_tree(tree, file_name):
-            with open(file_name, 'wb') as file:
-                pickle.dump(tree, file)
-        
-        save_tree(final_tree, f"/opt/dlami/nvme/hello_{problem_number}_i.pkl")
+            # save the tree to a file
+            def save_tree(tree, file_name):
+                with open(file_name, 'wb') as file:
+                    pickle.dump(tree, file)
+            
+            save_tree(final_tree, f"/opt/dlami/nvme/hello_{problem_number}_i.pkl")
 
-        results, root_val = final_tree.root.dfs_result(true_answer)
+            results, root_val = final_tree.root.dfs_result(true_answer)
 
-        # append results to the CSV file
-        with open(args.results_csv_path, 'a') as file:
-            writer = csv.writer(file)
-            for result in results:
-                writer.writerow(result)
+            # append results to the CSV file
+            with open(args.results_csv_path, 'a') as file:
+                writer = csv.writer(file)
+                for result in results:
+                    writer.writerow(result)
+        except Exception as e:
+            print(f"Error on iter {i}: {e}")
+            continue
 
     # # sample value of root node
     # tokenized_text = tokenizer(final_tree.root.state, return_tensors='pt')
