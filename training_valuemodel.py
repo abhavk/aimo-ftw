@@ -20,7 +20,7 @@ class TextValueDataset(Dataset):
         input_ids = encoding['input_ids'].squeeze(0)  # Remove batch dimension
         return input_ids, torch.tensor([value], dtype=torch.float32)
 
-trainset = read_csv('training.csv')
+trainset = read_csv('training_data.csv')
 # Assuming you have a tokenizer for your base model
 dataset = TextValueDataset(trainset['text'], trainset['value'], tokenizer)
 dataloader = DataLoader(dataset, batch_size=32, shuffle=True)
