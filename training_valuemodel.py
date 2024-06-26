@@ -72,6 +72,3 @@ def train_value_model(dataloader, model):
             print("\033[92mModel saved at checkpoints/model_epoch_{epoch+1}.pth\033[0m\n")
         except:
             torch.save(model.state_dict(), f"checkpoints/model_epoch_{epoch+1}.pth")
-
-
-
