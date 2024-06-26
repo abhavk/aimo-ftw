@@ -176,7 +176,7 @@ def generate_responses(text, max_tokens, step_size=100, num_expansions=3, test=F
     
 
 class TreeNode:
-    def __init__(self, state, id=0, parent=None, terminal=False):
+    def __init__(self, state, id=0, parent=None, terminal=False, answer=None):
         self.id = id
         self.state = state
         self.parent = parent
@@ -187,6 +187,30 @@ class TreeNode:
         value_tensor = get_value(tokenizer(state, return_tensors='pt')['input_ids'])
         self.value = value_tensor.item()
         self.terminal = terminal
+
+    def dfs_result(self, true_val):
+        return_val = None
+        return_list = []
+        if self.terminal:
+            if self.answer:
+                return_val = 1 if self.answer == true_val else -1
+            else:
+                return_val = 0
+            return_list = [(self.state, return_val)]
+        else:
+            child_vals = []
+            for child in self.children:
+                child_list, child_val = child.dfs_result(true_val)
+                child_vals.append(child_val)
+                return_list.extend(child_list)
+            
+            # take the average of the children values 
+            if child_vals:
+                return_val = sum(child_vals) / len(child_vals)
+            else:
+                return_val = 0
+                
+        return return_list, return_val
 
     def __str__(self):
         return self.state
@@ -258,7 +282,7 @@ class Tree:
         
         for expansion, answer, terminal in expansions:
             print(f"\033[93mCreated child: {expansion}\033[0m")
-            new_node = TreeNode(node.state + expansion, id=self.next_id, parent=node, terminal=terminal)
+            new_node = TreeNode(node.state + expansion, id=self.next_id, parent=node, terminal=terminal, answer=answer)
             self.next_id += 1
             if answer:
                 self.answers.append((new_node, answer))
