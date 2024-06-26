@@ -40,7 +40,7 @@ def train_value_model(dataloader, model):
 
     model.train()
     # Assuming 'dataloader' and 'value_model' are defined and 'value_model' is already loaded
-    optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
+    optimizer = torch.optim.Adam(model.parameters(), lr=0.0001)
     criterion = torch.nn.MSELoss()
 
     num_gpus = torch.cuda.device_count()
