@@ -319,14 +319,14 @@ class Tree:
             children = self.expand()
         if self.answers:
             answer = sample_best_answer([a[1] for a in self.answers])
-        return answer
+        return answer, self.answers
 
 def predict_mcts(problem, branching_factor, max_branching, step_size, max_tokens, n_iter):
     start_text = prompt_2
     start_text = start_text.format(problem)
     tree = Tree(start_text, branching_factor, step_size, max_tokens, max_branching)
-    answer = tree.mcts(n_iter=n_iter)
-    return answer, tree
+    answer, all_answers = tree.mcts(n_iter=n_iter)
+    return answer, all_answers, tree
 
 def attempt_training_problem(csv_file, number, mcts, branching_factor, max_branching, n_iter, step_size, max_tokens):
     if mcts:
@@ -341,18 +341,11 @@ def attempt_training_problem(csv_file, number, mcts, branching_factor, max_branc
                 answer = row['answer']
                 print(f"Problem: {problem}")
                 print(f"True answer: {answer}")
-                if os.getenv("MAX_TOKENS"):
-                    print(f"Using MAX_TOKENS: {os.getenv('MAX_TOKENS')}")
-                    if mcts:
-                        predicted_answer, tree = predict_mcts(problem, int(os.getenv("MAX_TOKENS")))
-                    else:
-                        predicted_answer, tree = predict(problem, int(os.getenv("MAX_TOKENS")))
-                else: 
-                    if mcts:
-                        predicted_answer, tree = predict_mcts(problem, branching_factor, max_branching, step_size, max_tokens, n_iter)
-                    else:
+                if mcts:
+                        predicted_answer, all_answers, tree = predict_mcts(problem, branching_factor, max_branching, step_size, max_tokens, n_iter)
+                else:
                         predicted_answer, tree = predict(problem)
-                return predicted_answer, tree, answer
+                return predicted_answer, tree, answer, all_answers
 
 if __name__ == '__main__':
     # read arguments and parse them
@@ -376,7 +369,7 @@ if __name__ == '__main__':
     answers = []
 
     for i in range(1):
-        answer, final_tree, true_answer = attempt_training_problem(
+        answer, final_tree, true_answer, all_answers = attempt_training_problem(
                                                 csv_file_path, 
                                                 args.input,
                                                 args.mcts, 
@@ -386,7 +379,9 @@ if __name__ == '__main__':
                                                 args.step_size,
                                                 args.max_tokens
                                             ) 
-        print(f"Predicted Answer: {answer}")
+        print(f"\n\nPredicted Answer: {answer}")
+        print(f"All answers: {all_answers}")
+        print(f"True answer: {true_answer}")
 
     print(f"\n\n")
     final_tree.print_tree()

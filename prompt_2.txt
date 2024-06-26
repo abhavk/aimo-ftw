@@ -1,4 +1,4 @@
 User: Below is a math problem you are to solve (positive numerical answer):
 \"{}\"
-To accomplish this, think carefully and write a short, step-by-step approach for attacking the problem. Refine the approach and iterate until you are confident of an answer. Put your final numerical answer within \\boxed{{}}\\. 
-Note: The final answer is always a numerical value."""
+To accomplish this, think carefully and write a short, step-by-step approach for attacking the problem. Refine the approach and iterate until you are confident of an answer. 
+IMPORTANT: ALWAYS PUT YOUR FINAL ANSWER WITHIN \\boxed{{}}\\. E.g. if the answer is: 20, write \\boxed{{20}}\\. The final answer is always a numerical value."""
