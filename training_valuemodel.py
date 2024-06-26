@@ -30,7 +30,7 @@ if tokenizer.pad_token is None:
 trainset = read_csv('training_data.csv')
 # Assuming you have a tokenizer for your base model
 dataset = TextValueDataset(trainset['text'], trainset['value'], tokenizer)
-dataloader = DataLoader(dataset, batch_size=32, shuffle=True)
+dataloader = DataLoader(dataset, batch_size=1, shuffle=True)
 
 def train_value_model(dataloader, model):
     # freeze base model
