@@ -187,6 +187,7 @@ class TreeNode:
         value_tensor = get_value(tokenizer(state, return_tensors='pt')['input_ids'])
         self.value = value_tensor.item()
         self.terminal = terminal
+        self.answer = answer
 
     def dfs_result(self, true_val):
         return_val = None
@@ -197,19 +198,16 @@ class TreeNode:
             else:
                 return_val = 0
             return_list = [(self.state, return_val)]
+        elif not self.children:
+            return_val = 0
+            return_list = [(self.state, return_val)]
         else:
             child_vals = []
             for child in self.children:
                 child_list, child_val = child.dfs_result(true_val)
                 child_vals.append(child_val)
-                return_list.extend(child_list)
-            
-            # take the average of the children values 
-            if child_vals:
-                return_val = sum(child_vals) / len(child_vals)
-            else:
-                return_val = 0
-                
+                return_list.extend(child_list)  
+            return_val = sum(child_vals) / len(child_vals)
         return return_list, return_val
 
     def __str__(self):
