@@ -56,12 +56,11 @@ def train_value_model(dataloader, model):
                 # fwd pass
                 outputs = model(inputs)
                 outputs = outputs.to(last_gpu)
+                outputs = outputs.float()                
                 # Check data types right before loss calculation
                 print(f'Inputs dtype: {inputs.dtype}, Outputs dtype: {outputs.dtype}, Labels dtype: {labels.dtype}')
-
                 loss = criterion(outputs, labels)
                 print(f'Loss dtype: {loss.dtype}')  # Check the dtype of loss
-                loss.to(dtype=torch.bfloat16)
                 loss.backward()
                 optimizer.step()
                 running_loss += loss.item()
