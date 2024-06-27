@@ -1,6 +1,6 @@
 from torch.utils.data import Dataset, DataLoader
 import torch
-from huggingface_api import tokenizer
+from huggingface_api import tokenizer, model
 from pandas import read_csv
 
 class TextValueDataset(Dataset):
@@ -34,14 +34,14 @@ dataloader = DataLoader(dataset, batch_size=1, shuffle=True)
 
 def train_value_model(dataloader, model_load_path="value_model.pth", lr=0.0001):
     from huggingface_api import ValueModel
-    model = ValueModel.load_model(model, model_load_path)
+    vmodel = ValueModel.load_model(model, model_load_path)
     # freeze base model
     for param in model.base_model.parameters():
         param.requires_grad = False
 
-    model.train()
+    vmodel.train()
     # Assuming 'dataloader' and 'value_model' are defined and 'value_model' is already loaded
-    optimizer = torch.optim.Adam(model.parameters(), lr=lr)
+    optimizer = torch.optim.Adam(vmodel.parameters(), lr=lr)
     criterion = torch.nn.MSELoss()
 
     num_gpus = torch.cuda.device_count()
@@ -52,14 +52,18 @@ def train_value_model(dataloader, model_load_path="value_model.pth", lr=0.0001):
         i = 0
         for inputs, labels in dataloader:
                 i+=1
+                short_running_loss = 0.0
                 if i%1000==0:
                     print(f'Iteration: {i}')
+                    avg_sloss = short_running_loss/1000
+                    print(f'Avg Loss (last 1000): {avg_sloss}')
+                    short_running_loss = 0.0
                 inputs = inputs.to('cuda:0')
                 labels.to(dtype=torch.bfloat16)
                 labels = labels.to(last_gpu)
                 optimizer.zero_grad()
                 # fwd pass
-                outputs = model(inputs)
+                outputs = vmodel(inputs)
                 outputs = outputs.to(last_gpu)
                 outputs = outputs.float()                
                 # Check data types right before loss calculation
