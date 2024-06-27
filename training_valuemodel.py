@@ -58,7 +58,7 @@ def train_value_model(dataloader, model_load_path="value_model.pth", lr=0.0001):
                     avg_sloss = short_running_loss/1000
                     print(f'Avg Loss (last 1000): {avg_sloss}')
                     vmodel.save_model(f"checkpoints/model_epoch_{epoch+1}_iter_{i}_loss_{avg_sloss}.pth")
-                    print(f"\033[93mModel interim saved at checkpoints/model_epoch_{epoch+1}_iter_{i}.pth\033[0m\n")
+                    print(f"\033[93mModel interim saved at checkpoints/model_epoch_{epoch+1}_iter_{i}_loss_{avg_sloss}.pth\033[0m\n")
                     short_running_loss = 0.0
                 inputs = inputs.to('cuda:0')
                 labels.to(dtype=torch.bfloat16)
