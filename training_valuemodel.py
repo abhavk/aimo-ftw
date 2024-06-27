@@ -27,7 +27,7 @@ class TextValueDataset(Dataset):
 if tokenizer.pad_token is None:
     tokenizer.pad_token = tokenizer.eos_token
 
-trainset = read_csv('training_data.csv')
+trainset = read_csv('training_final.csv')
 # Assuming you have a tokenizer for your base model
 dataset = TextValueDataset(trainset['text'], trainset['value'], tokenizer)
 dataloader = DataLoader(dataset, batch_size=1, shuffle=True)
