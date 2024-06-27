@@ -131,7 +131,7 @@ class ValueModel(nn.Module):
         hidden_states = outputs.hidden_states[-1].to(f"cuda:{self.get_num_gpus()-1}")
 
         # shape: (batch_size, sequence_length, hidden_size)
-        print(f"Shape of hidden states: {hidden_states.shape}")
+        # print(f"Shape of hidden states: {hidden_states.shape}")
         hidden_states = hidden_states.permute(1, 0, 2)  # (sequence_length, batch_size, hidden_size)
         # Apply multi-head attention
         attn_output, attn_weights = self.multihead_attn(hidden_states, hidden_states, hidden_states)
