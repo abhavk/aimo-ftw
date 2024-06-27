@@ -48,11 +48,11 @@ def train_value_model(dataloader, model_load_path="value_model.pth", lr=0.0001):
     last_gpu = f'cuda:{num_gpus-1}'
 
     for epoch in range(10):
+        short_running_loss = 0.0
         running_loss=0.0
         i = 0
         for inputs, labels in dataloader:
                 i+=1
-                short_running_loss = 0.0
                 if i%1000==0:
                     print(f'Iteration: {i}')
                     avg_sloss = short_running_loss/1000
@@ -80,7 +80,7 @@ def train_value_model(dataloader, model_load_path="value_model.pth", lr=0.0001):
 
         # Save the model after each epoch
         try:
-            model.save_model(f"checkpoints/model_epoch_{epoch+1}_{avg_loss}.pth")
+            vmodel.save_model(f"checkpoints/model_epoch_{epoch+1}_{avg_loss}.pth")
             print("\033[92mModel saved at checkpoints/model_epoch_{epoch+1}.pth\033[0m\n")
         except:
-            torch.save(model.state_dict(), f"checkpoints/model_epoch_{epoch+1}.pth")
+            torch.save(vmodel.state_dict(), f"checkpoints/model_epoch_{epoch+1}.pth")
