@@ -74,6 +74,7 @@ def train_value_model(dataloader, model_load_path="value_model.pth", lr=0.0001):
                 loss.backward()
                 optimizer.step()
                 running_loss += loss.item()
+                short_running_loss += loss.item()
         avg_loss = running_loss/len(dataloader)
         print(f'Epoch {epoch+1}, Loss: {avg_loss}')
 
