@@ -32,7 +32,7 @@ trainset = read_csv('training_final.csv')
 dataset = TextValueDataset(trainset['text'], trainset['value'], tokenizer)
 dataloader = DataLoader(dataset, batch_size=1, shuffle=True)
 
-def train_value_model(dataloader, model_load_path="value_model.pth"):
+def train_value_model(dataloader, model_load_path="value_model.pth", lr=0.0001):
     from huggingface_api import ValueModel
     model = ValueModel.load_model(model, model_load_path)
     # freeze base model
@@ -41,7 +41,7 @@ def train_value_model(dataloader, model_load_path="value_model.pth"):
 
     model.train()
     # Assuming 'dataloader' and 'value_model' are defined and 'value_model' is already loaded
-    optimizer = torch.optim.Adam(model.parameters(), lr=0.0001)
+    optimizer = torch.optim.Adam(model.parameters(), lr=lr)
     criterion = torch.nn.MSELoss()
 
     num_gpus = torch.cuda.device_count()
